@@ -4,6 +4,7 @@ import type { Student, PointLog } from './types';
 
 function invalidateClass(qc: ReturnType<typeof useQueryClient>, classId: number) {
   qc.invalidateQueries({ queryKey: ['students', classId] });
+  qc.invalidateQueries({ queryKey: ['logs'] });
 }
 
 export function useAward(classId: number) {

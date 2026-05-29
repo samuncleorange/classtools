@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useLogout } from '../lib/auth';
 import { useCurrentClass } from '../state/CurrentClass';
 import { useStudents } from '../lib/students';
@@ -25,6 +25,14 @@ export function DashboardPage() {
   const [logsFor, setLogsFor] = useState<Student | null>(null);
   const [batchMode, setBatchMode] = useState(false);
   const [selected, setSelected] = useState<number[]>([]);
+
+  // 切换班级时重置交互状态，避免对旧班学生执行操作
+  useEffect(() => {
+    setBatchMode(false);
+    setSelected([]);
+    setPointsFor(null);
+    setLogsFor(null);
+  }, [current?.id]);
 
   function toggle(id: number) {
     setSelected((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
