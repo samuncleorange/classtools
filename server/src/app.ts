@@ -3,7 +3,8 @@ import cookie from '@fastify/cookie';
 import fastifyStatic from '@fastify/static';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
-import { existsSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import type Database from 'better-sqlite3';
 import type { Config } from './config.js';
 import { registerAuthRoutes } from './auth/routes.js';
@@ -17,6 +18,7 @@ import { registerAwardRoutes } from './points/award-routes.js';
 declare module 'fastify' {
   interface FastifyInstance {
     authRequired: (req: FastifyRequest, reply: FastifyReply) => Promise<void>;
+    uploadRoot: string;
   }
   interface FastifyRequest {
     teacherId: number;
@@ -28,9 +30,18 @@ export async function buildApp(deps: {
   config: Config;
 }): Promise<FastifyInstance> {
   const { db, config } = deps;
-  const app = Fastify({ logger: config.NODE_ENV !== 'test', trustProxy: true });
+  const app = Fastify({ logger: config.NODE_ENV !== 'test', trustProxy: true, bodyLimit: 10 * 1024 * 1024 });
 
   await app.register(cookie, { secret: config.SESSION_SECRET });
+
+  const uploadRoot = config.DATA_DIR === ':memory:' ? mkdtempSync(join(tmpdir(), 'classtools-test-')) : config.DATA_DIR;
+  mkdirSync(join(uploadRoot, 'uploads'), { recursive: true });
+  app.decorate('uploadRoot', uploadRoot);
+  await app.register(fastifyStatic, {
+    root: join(uploadRoot, 'uploads'),
+    prefix: '/uploads/',
+    decorateReply: false, // web/dist 的 static 已 decorate sendFile
+  });
 
   app.decorate('authRequired', async (req: FastifyRequest, reply: FastifyReply) => {
     const raw = req.cookies.sid;
