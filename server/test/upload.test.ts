@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { mkdtempSync, rmSync, existsSync, readdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { saveDataUrl } from '../src/util/upload.js';
+import { saveDataUrl, deleteUpload } from '../src/util/upload.js';
 
 // 1x1 PNG
 const PNG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
@@ -31,5 +31,13 @@ describe('saveDataUrl', () => {
   it('拒绝超大图片', () => {
     const big = 'data:image/png;base64,' + 'A'.repeat(8 * 1024 * 1024);
     expect(() => saveDataUrl(dir, big)).toThrow();
+  });
+
+  it('deleteUpload 删除已存在文件且对不存在路径不抛错', () => {
+    const path = saveDataUrl(dir, PNG);
+    deleteUpload(dir, path);
+    expect(readdirSync(join(dir, 'uploads'))).toHaveLength(0);
+    expect(() => deleteUpload(dir, '/uploads/nope.png')).not.toThrow();
+    expect(() => deleteUpload(dir, null)).not.toThrow();
   });
 });

@@ -3,7 +3,7 @@ import type Database from 'better-sqlite3';
 import { z } from 'zod';
 import { getOwnedClass, getOwnedStudent, getOwnedPetType, type StudentRow } from '../util/ownership.js';
 import { intParam } from '../util/params.js';
-import { saveDataUrl } from '../util/upload.js';
+import { saveDataUrl, deleteUpload } from '../util/upload.js';
 
 const avatarBody = z.object({
   avatar_mode: z.enum(['pet', 'photo']).nullable().optional(),
@@ -42,10 +42,12 @@ export function registerAvatarRoutes(app: FastifyInstance, db: Database.Database
     if (!parsed.success) return reply.code(400).send({ error: 'bad_request' });
     const id = intParam((req.params as { id: string }).id);
     if (id === null) return reply.code(400).send({ error: 'bad_param' });
-    if (!getOwnedStudent(db, id, req.teacherId)) return reply.code(404).send({ error: 'not_found' });
+    const s = getOwnedStudent(db, id, req.teacherId);
+    if (!s) return reply.code(404).send({ error: 'not_found' });
     let path: string;
     try { path = saveDataUrl(app.uploadRoot, parsed.data.data_url); } catch { return reply.code(400).send({ error: 'bad_image' }); }
     db.prepare("UPDATE students SET photo_path = ?, avatar_mode = 'photo' WHERE id = ?").run(path, id);
+    deleteUpload(app.uploadRoot, s.photo_path);
     return studentById(db, id);
   });
 

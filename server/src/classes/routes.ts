@@ -44,6 +44,7 @@ export function registerClassRoutes(app: FastifyInstance, db: Database.Database)
     const lce = parsed.data.life_cycle_enabled !== undefined ? (parsed.data.life_cycle_enabled ? 1 : 0) : cls.life_cycle_enabled;
     const hunger = parsed.data.hunger_days ?? cls.hunger_days;
     const death = parsed.data.death_days ?? cls.death_days;
+    if (hunger >= death) return reply.code(400).send({ error: 'hunger_must_be_less_than_death' });
     db.prepare('UPDATE classes SET name = ?, display_mode = ?, life_cycle_enabled = ?, hunger_days = ?, death_days = ? WHERE id = ?')
       .run(name, mode, lce, hunger, death, id);
     return db.prepare('SELECT * FROM classes WHERE id = ?').get(id);

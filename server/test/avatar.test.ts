@@ -67,6 +67,11 @@ describe('avatar routes', () => {
     expect(res.json()).toMatchObject({ life_cycle_enabled: 1, hunger_days: 2, death_days: 5 });
   });
 
+  it('饥饿天数>=死亡天数返回 400', async () => {
+    const res = await app.inject({ method: 'PATCH', url: `/api/classes/${classId}`, cookies: { sid }, payload: { hunger_days: 5, death_days: 3 } });
+    expect(res.statusCode).toBe(400);
+  });
+
   it('加分后记录 last_award_at', async () => {
     const s = await addStudent('小明');
     const item = (await app.inject({ method: 'POST', url: `/api/classes/${classId}/point-items`, cookies: { sid }, payload: { kind: 'add', label: 'x', points: 1 } })).json();
