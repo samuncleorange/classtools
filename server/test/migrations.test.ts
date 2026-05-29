@@ -15,7 +15,7 @@ describe('migrations', () => {
     const db = createDb(':memory:');
     expect(() => runMigrations(db)).not.toThrow();
     const applied = db.prepare('SELECT COUNT(*) AS c FROM _migrations').get() as { c: number };
-    expect(applied.c).toBe(2);
+    expect(applied.c).toBe(3);
   });
 
   it('002 创建 classes/groups/students 表', () => {
@@ -24,6 +24,14 @@ describe('migrations', () => {
       .prepare("SELECT name FROM sqlite_master WHERE type='table' AND name IN ('classes','groups','students')")
       .all() as { name: string }[];
     expect(names.map((r) => r.name).sort()).toEqual(['classes', 'groups', 'students']);
+  });
+
+  it('003 创建 point_items/level_config/point_logs 表', () => {
+    const db = createDb(':memory:');
+    const names = db
+      .prepare("SELECT name FROM sqlite_master WHERE type='table' AND name IN ('point_items','level_config','point_logs')")
+      .all() as { name: string }[];
+    expect(names.map((r) => r.name).sort()).toEqual(['level_config', 'point_items', 'point_logs']);
   });
 
   it('删除班级级联删除其学生与分组', () => {

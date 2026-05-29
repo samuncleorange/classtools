@@ -49,6 +49,40 @@ export const migrations: Migration[] = [
       CREATE INDEX idx_students_class ON students(class_id);
     `,
   },
+  {
+    id: '003_points_levels',
+    sql: `
+      CREATE TABLE point_items (
+        id         INTEGER PRIMARY KEY AUTOINCREMENT,
+        class_id   INTEGER NOT NULL REFERENCES classes(id) ON DELETE CASCADE,
+        kind       TEXT NOT NULL,
+        label      TEXT NOT NULL,
+        icon       TEXT NOT NULL DEFAULT '⭐',
+        points     INTEGER NOT NULL,
+        sort_order INTEGER NOT NULL DEFAULT 0
+      );
+      CREATE TABLE level_config (
+        class_id        INTEGER NOT NULL REFERENCES classes(id) ON DELETE CASCADE,
+        level           INTEGER NOT NULL,
+        required_points INTEGER NOT NULL,
+        PRIMARY KEY (class_id, level)
+      );
+      CREATE TABLE point_logs (
+        id              INTEGER PRIMARY KEY AUTOINCREMENT,
+        student_id      INTEGER NOT NULL REFERENCES students(id) ON DELETE CASCADE,
+        batch_id        TEXT NOT NULL,
+        delta_growth    INTEGER NOT NULL,
+        delta_spendable INTEGER NOT NULL,
+        reason          TEXT NOT NULL,
+        growth_after    INTEGER NOT NULL,
+        spendable_after INTEGER NOT NULL,
+        created_at      TEXT NOT NULL
+      );
+      CREATE INDEX idx_point_items_class ON point_items(class_id);
+      CREATE INDEX idx_point_logs_student ON point_logs(student_id);
+      CREATE INDEX idx_point_logs_batch ON point_logs(batch_id);
+    `,
+  },
 ];
 
 export function runMigrations(db: Database.Database): void {
