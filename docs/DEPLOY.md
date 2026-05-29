@@ -22,7 +22,7 @@ server {
     ssl_certificate     /etc/letsencrypt/live/pet.example.com/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/pet.example.com/privkey.pem;
 
-    client_max_body_size 12m;   # 允许 base64 图片上传(应用 bodyLimit 10MB)
+    client_max_body_size 12m;   # 5MB 原始图片经 base64 编码后约 7MB,12m 留余量(应用 bodyLimit 为 10MB)
 
     location / {
         proxy_pass http://127.0.0.1:8080;
@@ -47,6 +47,7 @@ pet.example.com {
     request_body { max_size 12MB }
 }
 ```
+> Caddy 会自动申请并续期 HTTPS 证书,无需像 nginx 那样手动配置 certbot。
 
 ## 4. 常见问题
 - **登录成功但刷新后退出**:多半是用 http 直连了 `production` 模式(Secure Cookie 被丢弃)。请走 HTTPS,或本机测试时设 `NODE_ENV=development`。

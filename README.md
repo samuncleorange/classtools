@@ -37,7 +37,7 @@ React + Vite + Tailwind(前端) · Fastify + better-sqlite3(后端) · 单 Docke
 |---|---|
 | `PORT` | 容器内端口(默认 8080) |
 | `HOST_PORT` | 宿主映射端口(compose,默认 8080) |
-| `DATA_DIR` | 数据目录(容器内 `/data`,挂载卷) |
+| `DATA_DIR` | 服务读写数据(SQLite + 上传)的路径;用 Docker 时保持 `/data`(与卷挂载一致)。**勿删此变量**:省略时回退 `./data` 在容器内、不持久化。 |
 | `SESSION_SECRET` | 会话签名密钥,**务必改成长随机串**(`openssl rand -hex 32`) |
 | `ADMIN_USERNAME` / `ADMIN_PASSWORD` | 初始管理员(仅空库时创建一次) |
 | `NODE_ENV` | `production`(启用 Secure Cookie,需 HTTPS)或 `development`(本机 http 直连测试) |
