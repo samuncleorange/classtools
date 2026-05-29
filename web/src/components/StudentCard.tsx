@@ -49,7 +49,7 @@ export function StudentCard({
           ) : (
             <span className="text-3xl">🐾</span>
           )}
-          {STATUS_BADGE[status] && <span className="absolute -right-0 bottom-0 text-base">{STATUS_BADGE[status]}</span>}
+          {STATUS_BADGE[status] && <span className="absolute right-0 bottom-0 text-base">{STATUS_BADGE[status]}</span>}
         </div>
         <div className="truncate text-sm font-semibold text-slate-700">{student.name}</div>
         {mode === 'pet' && student.pet_name && <div className="truncate text-xs text-brand-500">{student.pet_name}</div>}

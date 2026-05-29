@@ -21,9 +21,10 @@ export function AvatarPicker({ classId, student, onClose }: { classId: number; s
   }
 
   async function onFile(e: ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
+    const input = e.currentTarget;
+    const file = input.files?.[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) { setErr('图片需小于 5MB'); return; }
+    if (file.size > 5 * 1024 * 1024) { setErr('图片需小于 5MB'); input.value = ''; return; }
     setErr('');
     uploadPhoto.mutate({ studentId: student.id, dataUrl: await fileToDataUrl(file) }, { onSuccess: onClose });
   }
@@ -55,6 +56,7 @@ export function AvatarPicker({ classId, student, onClose }: { classId: number; s
             ))}
             {pets.length === 0 && <p className="col-span-full py-4 text-center text-sm text-slate-400">还没有宠物,请先在「设置 → 宠物」上传</p>}
           </div>
+          {setAvatar.isError && <p className="text-sm text-lose-500">保存失败,请重试</p>}
         </div>
       )}
 
@@ -67,6 +69,7 @@ export function AvatarPicker({ classId, student, onClose }: { classId: number; s
           )}
           <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" onChange={onFile} aria-label="上传学生照片" className="mx-auto block" />
           {err && <p className="text-sm text-lose-500">{err}</p>}
+          {uploadPhoto.isError && <p className="text-sm text-lose-500">上传失败,请重试</p>}
           <p className="text-xs text-slate-400">上传后该生头像将切换为照片模式。</p>
         </div>
       )}

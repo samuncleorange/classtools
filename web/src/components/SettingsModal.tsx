@@ -135,7 +135,7 @@ export function SettingsModal({ open, onClose }: { open: boolean; onClose: () =>
                   开启(长时间不加分宠物会饥饿/死亡)
                 </label>
                 {current.life_cycle_enabled === 1 && (
-                  <div className="mt-2 flex gap-3 text-xs text-slate-500">
+                  <div key={current.id} className="mt-2 flex gap-3 text-xs text-slate-500">
                     <label className="flex items-center gap-1">饥饿天数
                       <input type="number" min={1} defaultValue={current.hunger_days} onBlur={(e) => updateClass.mutate({ id: current.id, hunger_days: Number(e.target.value) })} className="w-16 rounded-md border border-slate-200 px-2 py-1" />
                     </label>
