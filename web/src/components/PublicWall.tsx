@@ -13,7 +13,14 @@ export function PublicWall({ data }: { data: WallData }) {
   const { class: cls, levels, students, honor_roll } = data;
   return (
     <div className="mx-auto max-w-6xl p-6">
-      <h1 className="mb-6 text-center text-3xl font-bold text-brand-600">{cls.name}</h1>
+      <div className="relative mb-6">
+        <h1 className="text-center text-3xl font-bold text-brand-600">{cls.name}</h1>
+        <button
+          onClick={() => { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); }}
+          className="absolute right-0 top-0 rounded-lg border border-brand-200 px-3 py-1 text-xs text-brand-600 hover:bg-brand-50"
+          aria-label="全屏"
+        >⛶ 全屏</button>
+      </div>
 
       {cls.honor_roll_on_wall && honor_roll.length > 0 && (
         <div className="mb-8 rounded-3xl bg-white p-6 shadow ring-1 ring-accent-100">
@@ -33,7 +40,7 @@ export function PublicWall({ data }: { data: WallData }) {
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8">
         {students.map((s, i) => {
           // 有等级配置才计算,否则占位
           const prog = levels.length > 0 ? levelProgress(s.growth_points, levels.map((l) => ({ class_id: 0, ...l }))) : { level: 1, isMax: false, toNext: 0, ratio: 0 };
@@ -58,7 +65,7 @@ export function PublicWall({ data }: { data: WallData }) {
           );
         })}
       </div>
-      <p className="mt-8 text-center text-xs text-slate-300">班级宠物园</p>
+      <p className="mt-10 text-center text-xs text-slate-300">🐾 班级宠物园 · 共同见证成长</p>
     </div>
   );
 }
