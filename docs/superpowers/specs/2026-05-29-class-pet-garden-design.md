@@ -31,10 +31,9 @@
 | 入口 | 路径 | 鉴权 | 用途 |
 |---|---|---|---|
 | 老师端 | `/` 及子路由 | 需登录（session cookie） | 全部管理与操作 |
-| 公共展示墙 | `/wall/:token` | 无（凭随机 token） | 只读展示，含光荣榜 |
-| 公共奖章大厅 | `/medals/:token` | 无（凭随机 token） | 只读展示已获奖章 |
+| 公共展示墙 | `/wall/:token` | 无（凭随机 token） | 只读展示：光荣榜 + 每生头像/等级/积分/奖章（二合一） |
 
-- token 为高熵随机串（如 ≥ 22 字符 base62），**每班各自独立**。
+- token 为高熵随机串（如 ≥ 22 字符 base62），**每班一个**。
 - 老师可一键**重置 token**，重置后旧链接立即失效。
 
 ## 4. 认证模型
@@ -48,8 +47,8 @@
 > 字段为概要，迁移/索引在实现阶段细化。
 
 - `teachers`(id, username, password_hash, created_at)
-- `classes`(id, teacher_id, name, display_mode['pet'|'photo'], wall_token, medal_token,
-  public_show_real[bool], honor_roll_on_wall[bool],
+- `classes`(id, teacher_id, name, display_mode['pet'|'photo'], wall_token,
+  public_show_real[bool], honor_roll_on_wall[bool], show_medals_on_wall[bool],
   life_cycle_enabled[bool], hunger_days, death_days, created_at)
 - `groups`(id, class_id, name, sort_order)
 - `students`(id, class_id, name, group_id?, growth_points[int,只增], spendable_points[int],
@@ -85,12 +84,19 @@
 4. **积分**：单个/批量加减分、自定义加减分项目（图标+分值）、撤销上一步、积分记录（按学生/按班级）。
 5. **等级**：Lv.1–9 阈值设置（折线图拖拽/数值输入）、升级提示动画、满级标识；生命周期（饥饿/死亡天数）可选开关。
 6. **奖章**：自定义奖章（名称+图标/图片+所需积分），学生兑换扣可用积分，兑换记录。
-7. **公共链接管理**：查看/复制/重置 展示墙与奖章大厅链接；隐私开关（真实照片/姓名 vs 昵称/宠物）。
+7. **公共链接管理**：查看/复制/重置**单个展示墙链接**；隐私开关（真实照片/姓名 vs 昵称/宠物）、是否在卡片下显示奖章、是否显示光荣榜。
 
-## 7. 公共墙（只读，适配大屏）
+## 7. 公共墙（只读，适配大屏，二合一）
 
-- **展示墙** `/wall/:token`：学生头像（宠物或照片）、昵称、等级、成长进度条、可用积分；顶部含**光荣榜**（前三领奖台 + 排名）。受隐私开关控制是否显示真实照片/姓名。
-- **奖章大厅** `/medals/:token`：按学生展示其已获得的奖章及获得时间，班级奖章总数统计。
+单个链接 `/wall/:token` 即可看全班。布局：
+
+- **顶部**：光荣榜（前三领奖台 + 积分排名），可由 `honor_roll_on_wall` 开关。
+- **学生卡片网格**：每张卡片自上而下为
+  - 头像（宠物或照片）
+  - 昵称、等级牌、成长进度条、可用积分
+  - **该生已获奖章**（一排小图标，可由 `show_medals_on_wall` 开关）
+- 受隐私开关 `public_show_real` 控制是否显示真实照片/姓名（关闭时显示昵称/宠物）。
+- 顶部或角落显示班级奖章总数统计。
 
 ## 8. UI 主题（薄荷晴空）
 
@@ -129,6 +135,6 @@
 - **points**：加减分、双数值规则、撤销、流水。
 - **levels**：阈值配置与等级计算、生命周期。
 - **medals**：奖章定义与兑换。
-- **public**：展示墙与奖章大厅的只读数据接口（按 token）。
+- **public**：二合一展示墙的只读数据接口（按 token，含光荣榜与各生奖章）。
 - **frontend**：老师端 SPA + 两个公共只读页面 + 薄荷晴空主题。
 - **deploy**：Dockerfile / compose / 文档。
