@@ -65,6 +65,20 @@ describe('award routes', () => {
     expect(me).toMatchObject({ growth_points: 3, spendable_points: 3 }); // 还原到减分前
   });
 
+  it('撤销批量操作:还原所有学生', async () => {
+    const a = await addStudent('甲');
+    const b = await addStudent('乙');
+    const item = await makeItem('add', 4);
+    await app.inject({ method: 'POST', url: `/api/classes/${classId}/award-batch`, cookies: { sid }, payload: { student_ids: [a.id, b.id], item_id: item.id } });
+    const undo = await app.inject({ method: 'POST', url: `/api/classes/${classId}/undo`, cookies: { sid } });
+    expect(undo.json()).toMatchObject({ undone: 2 });
+    const list = (await app.inject({ method: 'GET', url: `/api/classes/${classId}/students`, cookies: { sid } })).json();
+    const av = list.find((x: { id: number }) => x.id === a.id);
+    const bv = list.find((x: { id: number }) => x.id === b.id);
+    expect(av).toMatchObject({ growth_points: 0, spendable_points: 0 });
+    expect(bv).toMatchObject({ growth_points: 0, spendable_points: 0 });
+  });
+
   it('无操作时撤销返回 0', async () => {
     const res = await app.inject({ method: 'POST', url: `/api/classes/${classId}/undo`, cookies: { sid } });
     expect(res.json()).toMatchObject({ undone: 0 });

@@ -83,10 +83,10 @@ export function registerAwardRoutes(app: FastifyInstance, db: Database.Database)
     if (!getOwnedClass(db, classId, req.teacherId)) return reply.code(404).send({ error: 'not_found' });
     // 找该班最近一次 batch（按该班学生日志的最大 created_at）
     const last = db.prepare(
-      `SELECT pl.batch_id AS batchId, MAX(pl.created_at) AS ts
+      `SELECT pl.batch_id AS batchId, MAX(pl.created_at) AS ts, MAX(pl.id) AS maxId
        FROM point_logs pl JOIN students s ON s.id = pl.student_id
        WHERE s.class_id = ?
-       GROUP BY pl.batch_id ORDER BY ts DESC LIMIT 1`,
+       GROUP BY pl.batch_id ORDER BY ts DESC, maxId DESC LIMIT 1`,
     ).get(classId) as { batchId: string } | undefined;
     if (!last) return { undone: 0 };
     const logs = db.prepare('SELECT * FROM point_logs WHERE batch_id = ?').all(last.batchId) as {
@@ -107,7 +107,8 @@ export function registerAwardRoutes(app: FastifyInstance, db: Database.Database)
     const id = intParam((req.params as { id: string }).id);
     if (id === null) return reply.code(400).send({ error: 'bad_param' });
     if (!getOwnedStudent(db, id, req.teacherId)) return reply.code(404).send({ error: 'not_found' });
-    const limit = Math.min(Number((req.query as { limit?: string }).limit ?? 50) || 50, 200);
+    const raw = Number((req.query as { limit?: string }).limit ?? 50);
+    const limit = Math.min(Number.isFinite(raw) && raw > 0 ? raw : 50, 200);
     return db.prepare('SELECT * FROM point_logs WHERE student_id = ? ORDER BY created_at DESC, id DESC LIMIT ?').all(id, limit);
   });
 }
