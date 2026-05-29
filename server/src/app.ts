@@ -22,7 +22,7 @@ export async function buildApp(deps: {
   config: Config;
 }): Promise<FastifyInstance> {
   const { db, config } = deps;
-  const app = Fastify({ logger: config.NODE_ENV !== 'test' });
+  const app = Fastify({ logger: config.NODE_ENV !== 'test', trustProxy: true });
 
   await app.register(cookie, { secret: config.SESSION_SECRET });
 

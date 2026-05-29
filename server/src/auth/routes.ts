@@ -41,7 +41,7 @@ export function registerAuthRoutes(
   });
 
   app.post('/api/auth/logout', async (_req, reply) => {
-    reply.clearCookie('sid', { path: '/' });
+    reply.clearCookie('sid', { path: '/', secure: opts.secure });
     return { ok: true };
   });
 
