@@ -106,6 +106,33 @@ export const migrations: Migration[] = [
       ALTER TABLE classes ADD COLUMN death_days INTEGER NOT NULL DEFAULT 7;
     `,
   },
+  {
+    id: '005_medals_wall',
+    sql: `
+      CREATE TABLE medals (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        class_id    INTEGER NOT NULL REFERENCES classes(id) ON DELETE CASCADE,
+        name        TEXT NOT NULL,
+        icon        TEXT NOT NULL DEFAULT '🏅',
+        image_path  TEXT,
+        cost_points INTEGER NOT NULL,
+        sort_order  INTEGER NOT NULL DEFAULT 0,
+        created_at  TEXT NOT NULL
+      );
+      CREATE TABLE student_medals (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        student_id  INTEGER NOT NULL REFERENCES students(id) ON DELETE CASCADE,
+        medal_id    INTEGER NOT NULL REFERENCES medals(id) ON DELETE CASCADE,
+        cost_at     INTEGER NOT NULL,
+        redeemed_at TEXT NOT NULL
+      );
+      CREATE INDEX idx_medals_class ON medals(class_id);
+      CREATE INDEX idx_student_medals_student ON student_medals(student_id);
+      ALTER TABLE classes ADD COLUMN public_show_real    INTEGER NOT NULL DEFAULT 0;
+      ALTER TABLE classes ADD COLUMN honor_roll_on_wall  INTEGER NOT NULL DEFAULT 1;
+      ALTER TABLE classes ADD COLUMN show_medals_on_wall INTEGER NOT NULL DEFAULT 1;
+    `,
+  },
 ];
 
 export function runMigrations(db: Database.Database): void {
