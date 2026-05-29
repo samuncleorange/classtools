@@ -83,6 +83,29 @@ export const migrations: Migration[] = [
       CREATE INDEX idx_point_logs_batch ON point_logs(batch_id);
     `,
   },
+  {
+    id: '004_avatars_lifecycle',
+    sql: `
+      CREATE TABLE pet_types (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        teacher_id  INTEGER NOT NULL REFERENCES teachers(id) ON DELETE CASCADE,
+        name        TEXT NOT NULL,
+        personality TEXT NOT NULL DEFAULT '',
+        image_path  TEXT NOT NULL,
+        sort_order  INTEGER NOT NULL DEFAULT 0,
+        created_at  TEXT NOT NULL
+      );
+      CREATE INDEX idx_pet_types_teacher ON pet_types(teacher_id);
+      ALTER TABLE students ADD COLUMN avatar_mode TEXT;
+      ALTER TABLE students ADD COLUMN pet_type_id INTEGER;
+      ALTER TABLE students ADD COLUMN pet_name TEXT;
+      ALTER TABLE students ADD COLUMN photo_path TEXT;
+      ALTER TABLE students ADD COLUMN last_award_at TEXT;
+      ALTER TABLE classes ADD COLUMN life_cycle_enabled INTEGER NOT NULL DEFAULT 0;
+      ALTER TABLE classes ADD COLUMN hunger_days INTEGER NOT NULL DEFAULT 3;
+      ALTER TABLE classes ADD COLUMN death_days INTEGER NOT NULL DEFAULT 7;
+    `,
+  },
 ];
 
 export function runMigrations(db: Database.Database): void {
