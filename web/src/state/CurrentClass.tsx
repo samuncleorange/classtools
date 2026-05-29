@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 import { useClasses } from '../lib/classes';
 import type { Class } from '../lib/types';
 
-interface CurrentClassValue {
+export interface CurrentClassValue {
   classes: Class[];
   currentId: number | null;
   current: Class | null;
@@ -10,7 +10,7 @@ interface CurrentClassValue {
   isLoading: boolean;
 }
 
-const Ctx = createContext<CurrentClassValue | null>(null);
+export const CurrentClassContext = createContext<CurrentClassValue | null>(null);
 const STORAGE_KEY = 'classtools.currentClassId';
 
 export function CurrentClassProvider({ children }: { children: ReactNode }) {
@@ -38,14 +38,14 @@ export function CurrentClassProvider({ children }: { children: ReactNode }) {
   const current = classes.find((c) => c.id === currentId) ?? null;
 
   return (
-    <Ctx.Provider value={{ classes, currentId, current, setCurrentId, isLoading }}>
+    <CurrentClassContext.Provider value={{ classes, currentId, current, setCurrentId, isLoading }}>
       {children}
-    </Ctx.Provider>
+    </CurrentClassContext.Provider>
   );
 }
 
 export function useCurrentClass(): CurrentClassValue {
-  const v = useContext(Ctx);
+  const v = useContext(CurrentClassContext);
   if (!v) throw new Error('useCurrentClass must be used within CurrentClassProvider');
   return v;
 }
