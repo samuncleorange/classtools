@@ -10,6 +10,9 @@ export interface ClassRow {
   life_cycle_enabled: number;
   hunger_days: number;
   death_days: number;
+  public_show_real: number;
+  honor_roll_on_wall: number;
+  show_medals_on_wall: number;
 }
 
 export interface StudentRow {
@@ -66,6 +69,16 @@ export interface PetTypeRow {
 
 export function getOwnedPetType(db: Database.Database, petTypeId: number, teacherId: number): PetTypeRow | undefined {
   return db.prepare('SELECT * FROM pet_types WHERE id = ? AND teacher_id = ?').get(petTypeId, teacherId) as PetTypeRow | undefined;
+}
+
+export interface MedalRow {
+  id: number; class_id: number; name: string; icon: string; image_path: string | null; cost_points: number; sort_order: number; created_at: string;
+}
+
+export function getOwnedMedal(db: Database.Database, medalId: number, teacherId: number): MedalRow | undefined {
+  return db
+    .prepare(`SELECT m.* FROM medals m JOIN classes c ON c.id = m.class_id WHERE m.id = ? AND c.teacher_id = ?`)
+    .get(medalId, teacherId) as MedalRow | undefined;
 }
 
 /** 返回属于该老师(经其班级)的分组，否则 undefined */
