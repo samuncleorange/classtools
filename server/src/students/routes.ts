@@ -2,6 +2,7 @@ import type { FastifyInstance } from 'fastify';
 import type Database from 'better-sqlite3';
 import { z } from 'zod';
 import { getOwnedClass, getOwnedStudent, type StudentRow } from '../util/ownership.js';
+import { intParam } from '../util/params.js';
 
 const nameBody = z.object({ name: z.string().trim().min(1) });
 const batchBody = z.object({ names: z.array(z.string()) });
@@ -23,15 +24,17 @@ function groupBelongsToClass(db: Database.Database, groupId: number, classId: nu
 
 export function registerStudentRoutes(app: FastifyInstance, db: Database.Database): void {
   app.get('/api/classes/:classId/students', { preHandler: app.authRequired }, async (req, reply) => {
-    const classId = Number((req.params as { classId: string }).classId);
+    const classId = intParam((req.params as { classId: string }).classId);
+    if (classId === null) return reply.code(400).send({ error: 'bad_param' });
     if (!getOwnedClass(db, classId, req.teacherId)) return reply.code(404).send({ error: 'not_found' });
     return db.prepare('SELECT * FROM students WHERE class_id = ? ORDER BY id').all(classId) as StudentRow[];
   });
 
   app.post('/api/classes/:classId/students', { preHandler: app.authRequired }, async (req, reply) => {
+    const classId = intParam((req.params as { classId: string }).classId);
+    if (classId === null) return reply.code(400).send({ error: 'bad_param' });
     const parsed = nameBody.safeParse(req.body);
     if (!parsed.success) return reply.code(400).send({ error: 'bad_request' });
-    const classId = Number((req.params as { classId: string }).classId);
     if (!getOwnedClass(db, classId, req.teacherId)) return reply.code(404).send({ error: 'not_found' });
     const info = db
       .prepare('INSERT INTO students (class_id, name, growth_points, spendable_points, created_at) VALUES (?,?,0,0,?)')
@@ -40,9 +43,10 @@ export function registerStudentRoutes(app: FastifyInstance, db: Database.Databas
   });
 
   app.post('/api/classes/:classId/students/batch', { preHandler: app.authRequired }, async (req, reply) => {
+    const classId = intParam((req.params as { classId: string }).classId);
+    if (classId === null) return reply.code(400).send({ error: 'bad_param' });
     const parsed = batchBody.safeParse(req.body);
     if (!parsed.success) return reply.code(400).send({ error: 'bad_request' });
-    const classId = Number((req.params as { classId: string }).classId);
     if (!getOwnedClass(db, classId, req.teacherId)) return reply.code(404).send({ error: 'not_found' });
     const names = parsed.data.names.map((n) => n.trim()).filter((n) => n.length > 0);
     const now = new Date().toISOString();
@@ -56,23 +60,26 @@ export function registerStudentRoutes(app: FastifyInstance, db: Database.Databas
   });
 
   app.delete('/api/students/:id', { preHandler: app.authRequired }, async (req, reply) => {
-    const id = Number((req.params as { id: string }).id);
+    const id = intParam((req.params as { id: string }).id);
+    if (id === null) return reply.code(400).send({ error: 'bad_param' });
     if (!getOwnedStudent(db, id, req.teacherId)) return reply.code(404).send({ error: 'not_found' });
     db.prepare('DELETE FROM students WHERE id = ?').run(id);
     return reply.code(204).send();
   });
 
   app.post('/api/students/:id/reset-points', { preHandler: app.authRequired }, async (req, reply) => {
-    const id = Number((req.params as { id: string }).id);
+    const id = intParam((req.params as { id: string }).id);
+    if (id === null) return reply.code(400).send({ error: 'bad_param' });
     if (!getOwnedStudent(db, id, req.teacherId)) return reply.code(404).send({ error: 'not_found' });
     db.prepare('UPDATE students SET growth_points = 0, spendable_points = 0 WHERE id = ?').run(id);
     return studentById(db, id);
   });
 
   app.patch('/api/students/:id', { preHandler: app.authRequired }, async (req, reply) => {
+    const id = intParam((req.params as { id: string }).id);
+    if (id === null) return reply.code(400).send({ error: 'bad_param' });
     const parsed = assignBody.safeParse(req.body);
     if (!parsed.success) return reply.code(400).send({ error: 'bad_request' });
-    const id = Number((req.params as { id: string }).id);
     const s = getOwnedStudent(db, id, req.teacherId);
     if (!s) return reply.code(404).send({ error: 'not_found' });
     const groupId = parsed.data.group_id;
@@ -84,9 +91,10 @@ export function registerStudentRoutes(app: FastifyInstance, db: Database.Databas
   });
 
   app.post('/api/classes/:classId/students/group', { preHandler: app.authRequired }, async (req, reply) => {
+    const classId = intParam((req.params as { classId: string }).classId);
+    if (classId === null) return reply.code(400).send({ error: 'bad_param' });
     const parsed = batchGroupBody.safeParse(req.body);
     if (!parsed.success) return reply.code(400).send({ error: 'bad_request' });
-    const classId = Number((req.params as { classId: string }).classId);
     if (!getOwnedClass(db, classId, req.teacherId)) return reply.code(404).send({ error: 'not_found' });
     const { studentIds, groupId } = parsed.data;
     if (groupId !== null && !groupBelongsToClass(db, groupId, classId)) {

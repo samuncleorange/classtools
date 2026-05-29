@@ -13,13 +13,14 @@ const testConfig: Config = {
 let app: FastifyInstance;
 let sid: string;
 let classId: number;
+let db: ReturnType<typeof createDb>;
 
 async function addStudent(name: string) {
   return (await app.inject({ method: 'POST', url: `/api/classes/${classId}/students`, cookies: { sid }, payload: { name } })).json();
 }
 
 beforeEach(async () => {
-  const db = createDb(':memory:');
+  db = createDb(':memory:');
   seedAdmin(db, { username: 'teacher', password: 'pw123456' });
   app = await buildApp({ db, config: testConfig });
   sid = (await app.inject({ method: 'POST', url: '/api/auth/login', payload: { username: 'teacher', password: 'pw123456' } })).cookies.find((c) => c.name === 'sid')!.value;
@@ -50,7 +51,7 @@ describe('students routes', () => {
 
   it('重置积分', async () => {
     const s = await addStudent('小明');
-    // 直接改库模拟已有积分
+    db.prepare('UPDATE students SET growth_points = 50, spendable_points = 30 WHERE id = ?').run(s.id);
     const reset = await app.inject({ method: 'POST', url: `/api/students/${s.id}/reset-points`, cookies: { sid } });
     expect(reset.statusCode).toBe(200);
     expect(reset.json()).toMatchObject({ growth_points: 0, spendable_points: 0 });

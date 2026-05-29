@@ -3,6 +3,7 @@ import type Database from 'better-sqlite3';
 import { z } from 'zod';
 import { generateToken } from '../util/token.js';
 import { getOwnedClass, type ClassRow } from '../util/ownership.js';
+import { intParam } from '../util/params.js';
 
 const createBody = z.object({ name: z.string().trim().min(1) });
 const updateBody = z.object({
@@ -29,9 +30,10 @@ export function registerClassRoutes(app: FastifyInstance, db: Database.Database)
   });
 
   app.patch('/api/classes/:id', { preHandler: app.authRequired }, async (req, reply) => {
+    const id = intParam((req.params as { id: string }).id);
+    if (id === null) return reply.code(400).send({ error: 'bad_param' });
     const parsed = updateBody.safeParse(req.body);
     if (!parsed.success) return reply.code(400).send({ error: 'bad_request' });
-    const id = Number((req.params as { id: string }).id);
     const cls = getOwnedClass(db, id, req.teacherId);
     if (!cls) return reply.code(404).send({ error: 'not_found' });
     const name = parsed.data.name ?? cls.name;
@@ -41,7 +43,8 @@ export function registerClassRoutes(app: FastifyInstance, db: Database.Database)
   });
 
   app.delete('/api/classes/:id', { preHandler: app.authRequired }, async (req, reply) => {
-    const id = Number((req.params as { id: string }).id);
+    const id = intParam((req.params as { id: string }).id);
+    if (id === null) return reply.code(400).send({ error: 'bad_param' });
     const cls = getOwnedClass(db, id, req.teacherId);
     if (!cls) return reply.code(404).send({ error: 'not_found' });
     db.prepare('DELETE FROM classes WHERE id = ?').run(id);

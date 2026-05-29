@@ -103,4 +103,9 @@ describe('classes routes', () => {
     const res = await app.inject({ method: 'PATCH', url: '/api/classes/999', cookies: { sid }, payload: { name: 'X' } });
     expect(res.statusCode).toBe(404);
   });
+
+  it('非数字 id 返回 400', async () => {
+    const res = await app.inject({ method: 'DELETE', url: '/api/classes/abc', cookies: { sid } });
+    expect(res.statusCode).toBe(400);
+  });
 });
