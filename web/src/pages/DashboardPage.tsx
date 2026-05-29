@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useLogout } from '../lib/auth';
 import { useCurrentClass } from '../state/CurrentClass';
 import { useStudents } from '../lib/students';
@@ -40,6 +40,8 @@ export function DashboardPage() {
     setLogsFor(null);
     setAvatarFor(null);
   }, [current?.id]);
+
+  const now = useMemo(() => new Date(), []);
 
   function toggle(id: number) {
     setSelected((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
@@ -113,7 +115,7 @@ export function DashboardPage() {
                   levels={levels}
                   cls={current}
                   pets={pets}
-                  now={new Date()}
+                  now={now}
                   onPoints={setPointsFor}
                   onLogs={setLogsFor}
                   onAvatar={setAvatarFor}

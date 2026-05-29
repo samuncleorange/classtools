@@ -19,6 +19,9 @@ export function useDeletePetType() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => api<void>(`/api/pet-types/${id}`, { method: 'DELETE' }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['pet-types'] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['pet-types'] });
+      qc.invalidateQueries({ queryKey: ['students'] });
+    },
   });
 }
