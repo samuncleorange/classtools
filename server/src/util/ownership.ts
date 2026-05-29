@@ -7,6 +7,9 @@ export interface ClassRow {
   display_mode: 'pet' | 'photo';
   wall_token: string;
   created_at: string;
+  life_cycle_enabled: number;
+  hunger_days: number;
+  death_days: number;
 }
 
 export interface StudentRow {
@@ -17,6 +20,11 @@ export interface StudentRow {
   growth_points: number;
   spendable_points: number;
   created_at: string;
+  avatar_mode: 'pet' | 'photo' | null;
+  pet_type_id: number | null;
+  pet_name: string | null;
+  photo_path: string | null;
+  last_award_at: string | null;
 }
 
 export interface GroupRow {
@@ -50,6 +58,14 @@ export function getOwnedStudent(
        WHERE s.id = ? AND c.teacher_id = ?`,
     )
     .get(studentId, teacherId) as StudentRow | undefined;
+}
+
+export interface PetTypeRow {
+  id: number; teacher_id: number; name: string; personality: string; image_path: string; sort_order: number; created_at: string;
+}
+
+export function getOwnedPetType(db: Database.Database, petTypeId: number, teacherId: number): PetTypeRow | undefined {
+  return db.prepare('SELECT * FROM pet_types WHERE id = ? AND teacher_id = ?').get(petTypeId, teacherId) as PetTypeRow | undefined;
 }
 
 /** 返回属于该老师(经其班级)的分组，否则 undefined */
