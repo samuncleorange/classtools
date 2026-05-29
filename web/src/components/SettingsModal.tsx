@@ -4,10 +4,11 @@ import { StudentRoster } from './StudentRoster';
 import { GroupManager } from './GroupManager';
 import { PointItemsManager } from './PointItemsManager';
 import { LevelEditor } from './LevelEditor';
+import { PetTypesManager } from './PetTypesManager';
 import { useCurrentClass } from '../state/CurrentClass';
 import { useCreateClass, useUpdateClass, useDeleteClass } from '../lib/classes';
 
-type Tab = 'roster' | 'groups' | 'items' | 'levels' | 'class';
+type Tab = 'roster' | 'groups' | 'items' | 'levels' | 'pets' | 'class';
 
 export function SettingsModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { current, classes, setCurrentId } = useCurrentClass();
@@ -37,6 +38,7 @@ export function SettingsModal({ open, onClose }: { open: boolean; onClose: () =>
           ['groups', '分组'],
           ['items', '积分项目'],
           ['levels', '等级'],
+          ['pets', '宠物'],
           ['class', '班级设置'],
         ] as [Tab, string][]).map(([key, label]) => (
           <button
@@ -59,6 +61,7 @@ export function SettingsModal({ open, onClose }: { open: boolean; onClose: () =>
       {tab === 'groups' && current && <GroupManager classId={current.id} />}
       {tab === 'items' && current && <PointItemsManager classId={current.id} />}
       {tab === 'levels' && current && <LevelEditor key={current.id} classId={current.id} />}
+      {tab === 'pets' && <PetTypesManager />}
 
       {tab === 'class' && (
         <div className="space-y-6">
@@ -119,6 +122,28 @@ export function SettingsModal({ open, onClose }: { open: boolean; onClose: () =>
                   ))}
                 </div>
                 <p className="mt-1 text-xs text-slate-400">照片模式与宠物模式都保留 Lv.1–9 等级成长。</p>
+              </div>
+
+              <div>
+                <h3 className="mb-2 text-sm font-semibold text-slate-600">宠物生命周期</h3>
+                <label className="flex items-center gap-2 text-sm text-slate-600">
+                  <input
+                    type="checkbox"
+                    checked={current.life_cycle_enabled === 1}
+                    onChange={(e) => updateClass.mutate({ id: current.id, life_cycle_enabled: e.target.checked })}
+                  />
+                  开启(长时间不加分宠物会饥饿/死亡)
+                </label>
+                {current.life_cycle_enabled === 1 && (
+                  <div className="mt-2 flex gap-3 text-xs text-slate-500">
+                    <label className="flex items-center gap-1">饥饿天数
+                      <input type="number" min={1} defaultValue={current.hunger_days} onBlur={(e) => updateClass.mutate({ id: current.id, hunger_days: Number(e.target.value) })} className="w-16 rounded-md border border-slate-200 px-2 py-1" />
+                    </label>
+                    <label className="flex items-center gap-1">死亡天数
+                      <input type="number" min={1} defaultValue={current.death_days} onBlur={(e) => updateClass.mutate({ id: current.id, death_days: Number(e.target.value) })} className="w-16 rounded-md border border-slate-200 px-2 py-1" />
+                    </label>
+                  </div>
+                )}
               </div>
 
               <div className="border-t border-slate-100 pt-4">

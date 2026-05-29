@@ -95,7 +95,7 @@ export function DashboardPage() {
                   <div className="mt-1 text-xs text-accent-600">🍪 {s.spendable_points}</div>
                 </button>
               ) : (
-                <StudentCard key={s.id} student={s} levels={levels} onPoints={setPointsFor} onLogs={setLogsFor} />
+                <StudentCard key={s.id} student={s} levels={levels} cls={current} pets={[]} now={new Date()} onPoints={setPointsFor} onLogs={setLogsFor} onAvatar={() => {}} />
               ),
             )}
           </div>
