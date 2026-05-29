@@ -14,6 +14,7 @@ import { usePetTypes } from '../lib/petTypes';
 import { useAssignPets } from '../lib/avatar';
 import { AvatarPicker } from '../components/AvatarPicker';
 import { RedeemModal } from '../components/RedeemModal';
+import { Toast } from '../components/Toast';
 import type { Student } from '../lib/types';
 
 export function DashboardPage() {
@@ -33,6 +34,7 @@ export function DashboardPage() {
   const [selected, setSelected] = useState<number[]>([]);
   const [avatarFor, setAvatarFor] = useState<Student | null>(null);
   const [redeemFor, setRedeemFor] = useState<Student | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
 
   // 切换班级时重置交互状态，避免对旧班学生执行操作
   useEffect(() => {
@@ -67,14 +69,14 @@ export function DashboardPage() {
                 {batchMode ? '完成批量' : '批量操作'}
               </button>
               <button
-                onClick={() => undo.mutate()}
+                onClick={() => undo.mutate(undefined, { onSuccess: (r) => setToast(r.undone > 0 ? `已撤销 ${r.undone} 项操作` : '没有可撤销的操作') })}
                 disabled={undo.isPending}
                 className="rounded-lg border border-slate-200 px-3 py-1.5 font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-50"
               >
                 ↩ 撤销
               </button>
               <button
-                onClick={() => { if (pets.length === 0) { alert('请先在「设置 → 宠物」上传宠物'); return; } assignPets.mutate(); }}
+                onClick={() => { if (pets.length === 0) { setToast('请先在「设置 → 宠物」上传宠物'); return; } assignPets.mutate(undefined, { onSuccess: (r) => setToast(`已为 ${r.assigned} 名学生分配宠物`) }); }}
                 disabled={assignPets.isPending}
                 className="rounded-lg border border-slate-200 px-3 py-1.5 font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-50"
               >🎲 一键分配</button>
@@ -99,7 +101,7 @@ export function DashboardPage() {
             <button onClick={() => setSettingsOpen(true)} className="rounded-lg bg-brand-500 px-5 py-2 font-medium text-white hover:bg-brand-600">去添加学生</button>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8">
             {students.map((s) =>
               batchMode ? (
                 <button
@@ -142,6 +144,7 @@ export function DashboardPage() {
         const live = students.find((s) => s.id === redeemFor.id) ?? redeemFor;
         return <RedeemModal classId={current.id} student={live} onClose={() => setRedeemFor(null)} />;
       })()}
+      <Toast message={toast} onDone={() => setToast(null)} />
     </div>
   );
 }
