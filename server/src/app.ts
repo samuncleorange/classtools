@@ -1,5 +1,9 @@
 import Fastify, { type FastifyInstance, type FastifyReply, type FastifyRequest } from 'fastify';
 import cookie from '@fastify/cookie';
+import fastifyStatic from '@fastify/static';
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
+import { existsSync } from 'node:fs';
 import type Database from 'better-sqlite3';
 import type { Config } from './config.js';
 import { registerAuthRoutes } from './auth/routes.js';
@@ -34,6 +38,21 @@ export async function buildApp(deps: {
   app.get('/api/health', async () => ({ status: 'ok' }));
 
   registerAuthRoutes(app, db, { secure: config.NODE_ENV === 'production' });
+
+  // 生产环境：托管打包后的前端，并对非 /api 路由回退到 index.html（SPA）
+  if (config.NODE_ENV === 'production') {
+    const here = dirname(fileURLToPath(import.meta.url));
+    const webDist = join(here, '..', '..', 'web', 'dist');
+    if (existsSync(webDist)) {
+      await app.register(fastifyStatic, { root: webDist, prefix: '/' });
+      app.setNotFoundHandler((req, reply) => {
+        if (req.url.startsWith('/api')) {
+          return reply.code(404).send({ error: 'not_found' });
+        }
+        return reply.sendFile('index.html');
+      });
+    }
+  }
 
   return app;
 }
