@@ -22,3 +22,31 @@ export interface Student {
   spendable_points: number;
   created_at: string;
 }
+
+export interface PointItem {
+  id: number;
+  class_id: number;
+  kind: 'add' | 'subtract';
+  label: string;
+  icon: string;
+  points: number;
+  sort_order: number;
+}
+
+export interface LevelConfig {
+  class_id: number;
+  level: number;
+  required_points: number;
+}
+
+export interface PointLog {
+  id: number;
+  student_id: number;
+  batch_id: string;
+  delta_growth: number;
+  delta_spendable: number;
+  reason: string;
+  growth_after: number;
+  spendable_after: number;
+  created_at: string;
+}
