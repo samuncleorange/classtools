@@ -1,7 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import type Database from 'better-sqlite3';
 import { z } from 'zod';
-import { getOwnedClass, getOwnedStudent, type StudentRow } from '../util/ownership.js';
+import { getOwnedClass, getOwnedStudent, getStudentById, type StudentRow } from '../util/ownership.js';
 import { intParam } from '../util/params.js';
 
 const nameBody = z.object({ name: z.string().trim().min(1) });
@@ -11,10 +11,6 @@ const batchGroupBody = z.object({
   studentIds: z.array(z.number().int()),
   groupId: z.number().int().nullable(),
 });
-
-function studentById(db: Database.Database, id: number): StudentRow {
-  return db.prepare('SELECT * FROM students WHERE id = ?').get(id) as StudentRow;
-}
 
 /** group_id 为 null 合法；否则必须属于同一 class */
 function groupBelongsToClass(db: Database.Database, groupId: number, classId: number): boolean {
@@ -39,7 +35,7 @@ export function registerStudentRoutes(app: FastifyInstance, db: Database.Databas
     const info = db
       .prepare('INSERT INTO students (class_id, name, growth_points, spendable_points, created_at) VALUES (?,?,0,0,?)')
       .run(classId, parsed.data.name, new Date().toISOString());
-    return studentById(db, Number(info.lastInsertRowid));
+    return getStudentById(db, Number(info.lastInsertRowid));
   });
 
   app.post('/api/classes/:classId/students/batch', { preHandler: app.authRequired }, async (req, reply) => {
@@ -56,7 +52,7 @@ export function registerStudentRoutes(app: FastifyInstance, db: Database.Databas
       for (const n of names) ids.push(Number(insert.run(classId, n, now).lastInsertRowid));
     });
     tx();
-    return ids.map((id) => studentById(db, id));
+    return ids.map((id) => getStudentById(db, id));
   });
 
   app.delete('/api/students/:id', { preHandler: app.authRequired }, async (req, reply) => {
@@ -72,7 +68,7 @@ export function registerStudentRoutes(app: FastifyInstance, db: Database.Databas
     if (id === null) return reply.code(400).send({ error: 'bad_param' });
     if (!getOwnedStudent(db, id, req.teacherId)) return reply.code(404).send({ error: 'not_found' });
     db.prepare('UPDATE students SET growth_points = 0, spendable_points = 0 WHERE id = ?').run(id);
-    return studentById(db, id);
+    return getStudentById(db, id);
   });
 
   app.patch('/api/students/:id', { preHandler: app.authRequired }, async (req, reply) => {
@@ -87,7 +83,7 @@ export function registerStudentRoutes(app: FastifyInstance, db: Database.Databas
       return reply.code(400).send({ error: 'group_not_in_class' });
     }
     db.prepare('UPDATE students SET group_id = ? WHERE id = ?').run(groupId, id);
-    return studentById(db, id);
+    return getStudentById(db, id);
   });
 
   app.post('/api/classes/:classId/students/group', { preHandler: app.authRequired }, async (req, reply) => {

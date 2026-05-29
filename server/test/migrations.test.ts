@@ -15,7 +15,7 @@ describe('migrations', () => {
     const db = createDb(':memory:');
     expect(() => runMigrations(db)).not.toThrow();
     const applied = db.prepare('SELECT COUNT(*) AS c FROM _migrations').get() as { c: number };
-    expect(applied.c).toBe(4);
+    expect(applied.c).toBe(5);
   });
 
   it('002 创建 classes/groups/students 表', () => {
@@ -42,6 +42,14 @@ describe('migrations', () => {
     expect(scols).toEqual(expect.arrayContaining(['avatar_mode', 'pet_type_id', 'pet_name', 'photo_path', 'last_award_at']));
     const ccols = (db.prepare('PRAGMA table_info(classes)').all() as { name: string }[]).map((c) => c.name);
     expect(ccols).toEqual(expect.arrayContaining(['life_cycle_enabled', 'hunger_days', 'death_days']));
+  });
+
+  it('005 创建 medals/student_medals 并为 classes 增隐私列', () => {
+    const db = createDb(':memory:');
+    const names = (db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name IN ('medals','student_medals')").all() as { name: string }[]).map((r) => r.name).sort();
+    expect(names).toEqual(['medals', 'student_medals']);
+    const ccols = (db.prepare('PRAGMA table_info(classes)').all() as { name: string }[]).map((c) => c.name);
+    expect(ccols).toEqual(expect.arrayContaining(['public_show_real', 'honor_roll_on_wall', 'show_medals_on_wall']));
   });
 
   it('删除班级级联删除其学生与分组', () => {

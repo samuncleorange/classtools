@@ -7,6 +7,9 @@ export interface Class {
   life_cycle_enabled: 0 | 1;
   hunger_days: number;
   death_days: number;
+  public_show_real: 0 | 1;
+  honor_roll_on_wall: 0 | 1;
+  show_medals_on_wall: 0 | 1;
 }
 
 export interface Group {
@@ -67,4 +70,15 @@ export interface PetType {
   image_path: string;
   sort_order: number;
   created_at: string;
+}
+
+export interface Medal { id:number; class_id:number; name:string; icon:string; image_path:string|null; cost_points:number; sort_order:number; created_at:string }
+export interface StudentMedal { id:number; student_id:number; medal_id:number; cost_at:number; redeemed_at:string; name:string; icon:string; image_path:string|null }
+export interface WallAvatar { kind:'photo'|'pet'|'none'; url:string|null }
+export interface WallStudent { display_name:string; growth_points:number; spendable_points:number; avatar:WallAvatar; medals:{ name:string; icon:string; image_path:string|null }[] }
+export interface WallData {
+  class: { name:string; honor_roll_on_wall:boolean; show_medals_on_wall:boolean };
+  levels: { level:number; required_points:number }[];
+  students: WallStudent[];
+  honor_roll: { rank:number; display_name:string; growth_points:number; avatar:WallAvatar }[];
 }
