@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { createDb } from '../src/db/index.js';
+import { runMigrations } from '../src/db/migrations.js';
 
 describe('migrations', () => {
   it('在内存库创建 teachers 表', () => {
@@ -12,8 +13,8 @@ describe('migrations', () => {
 
   it('迁移可重复执行且幂等', () => {
     const db = createDb(':memory:');
-    expect(() => createDb(':memory:')).not.toThrow();
+    expect(() => runMigrations(db)).not.toThrow();
     const applied = db.prepare('SELECT COUNT(*) AS c FROM _migrations').get() as { c: number };
-    expect(applied.c).toBeGreaterThanOrEqual(1);
+    expect(applied.c).toBe(1);
   });
 });

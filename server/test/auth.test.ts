@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import type { FastifyInstance } from 'fastify';
 import { createDb } from '../src/db/index.js';
 import { seedAdmin } from '../src/auth/seed.js';
@@ -20,6 +20,10 @@ beforeEach(async () => {
   const db = createDb(':memory:');
   seedAdmin(db, { username: 'teacher', password: 'pw123456' });
   app = await buildApp({ db, config: testConfig });
+});
+
+afterEach(async () => {
+  await app.close();
 });
 
 describe('auth routes', () => {

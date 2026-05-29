@@ -13,6 +13,7 @@ export function verifyPassword(password: string, stored: string): boolean {
   if (parts.length !== 3 || parts[0] !== 'scrypt') return false;
   const salt = Buffer.from(parts[1], 'hex');
   const expected = Buffer.from(parts[2], 'hex');
-  const derived = scryptSync(password, salt, expected.length);
-  return derived.length === expected.length && timingSafeEqual(derived, expected);
+  if (expected.length !== KEYLEN) return false;
+  const derived = scryptSync(password, salt, KEYLEN);
+  return timingSafeEqual(derived, expected);
 }

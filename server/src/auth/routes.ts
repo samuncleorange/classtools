@@ -45,10 +45,11 @@ export function registerAuthRoutes(
     return { ok: true };
   });
 
-  app.get('/api/auth/me', { preHandler: app.authRequired }, async (req) => {
+  app.get('/api/auth/me', { preHandler: app.authRequired }, async (req, reply) => {
     const t = db.prepare('SELECT id, username FROM teachers WHERE id = ?').get(req.teacherId) as
       | { id: number; username: string }
       | undefined;
-    return t ?? { id: req.teacherId };
+    if (!t) return reply.code(401).send({ error: 'unauthorized' });
+    return t;
   });
 }
