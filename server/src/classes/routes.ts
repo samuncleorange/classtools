@@ -12,6 +12,9 @@ const updateBody = z.object({
   life_cycle_enabled: z.boolean().optional(),
   hunger_days: z.number().int().min(1).optional(),
   death_days: z.number().int().min(1).optional(),
+  public_show_real: z.boolean().optional(),
+  honor_roll_on_wall: z.boolean().optional(),
+  show_medals_on_wall: z.boolean().optional(),
 });
 
 export function registerClassRoutes(app: FastifyInstance, db: Database.Database): void {
@@ -45,8 +48,11 @@ export function registerClassRoutes(app: FastifyInstance, db: Database.Database)
     const hunger = parsed.data.hunger_days ?? cls.hunger_days;
     const death = parsed.data.death_days ?? cls.death_days;
     if (hunger >= death) return reply.code(400).send({ error: 'hunger_must_be_less_than_death' });
-    db.prepare('UPDATE classes SET name = ?, display_mode = ?, life_cycle_enabled = ?, hunger_days = ?, death_days = ? WHERE id = ?')
-      .run(name, mode, lce, hunger, death, id);
+    const psr = parsed.data.public_show_real !== undefined ? (parsed.data.public_show_real ? 1 : 0) : cls.public_show_real;
+    const hrw = parsed.data.honor_roll_on_wall !== undefined ? (parsed.data.honor_roll_on_wall ? 1 : 0) : cls.honor_roll_on_wall;
+    const smw = parsed.data.show_medals_on_wall !== undefined ? (parsed.data.show_medals_on_wall ? 1 : 0) : cls.show_medals_on_wall;
+    db.prepare('UPDATE classes SET name = ?, display_mode = ?, life_cycle_enabled = ?, hunger_days = ?, death_days = ?, public_show_real = ?, honor_roll_on_wall = ?, show_medals_on_wall = ? WHERE id = ?')
+      .run(name, mode, lce, hunger, death, psr, hrw, smw, id);
     return db.prepare('SELECT * FROM classes WHERE id = ?').get(id);
   });
 

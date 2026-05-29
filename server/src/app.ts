@@ -18,6 +18,7 @@ import { registerPetTypeRoutes } from './pets/types-routes.js';
 import { registerAvatarRoutes } from './pets/avatar-routes.js';
 import { registerMedalRoutes } from './medals/medals-routes.js';
 import { registerRedeemRoutes } from './medals/redeem-routes.js';
+import { registerWallRoutes } from './wall/wall-routes.js';
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -69,6 +70,7 @@ export async function buildApp(deps: {
   registerAvatarRoutes(app, db);
   registerMedalRoutes(app, db);
   registerRedeemRoutes(app, db);
+  registerWallRoutes(app, db);
 
   // 生产环境：托管打包后的前端，并对非 /api 路由回退到 index.html（SPA）
   if (config.NODE_ENV === 'production') {
