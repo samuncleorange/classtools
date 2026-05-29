@@ -1,7 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import type Database from 'better-sqlite3';
 import { z } from 'zod';
-import { getOwnedClass, getOwnedStudent, getOwnedPetType, type StudentRow } from '../util/ownership.js';
+import { getOwnedClass, getOwnedStudent, getOwnedPetType, getStudentById } from '../util/ownership.js';
 import { intParam } from '../util/params.js';
 import { saveDataUrl, deleteUpload } from '../util/upload.js';
 
@@ -11,10 +11,6 @@ const avatarBody = z.object({
   pet_name: z.string().trim().min(1).nullable().optional(),
 });
 const photoBody = z.object({ data_url: z.string().min(1) });
-
-function studentById(db: Database.Database, id: number): StudentRow {
-  return db.prepare('SELECT * FROM students WHERE id = ?').get(id) as StudentRow;
-}
 
 export function registerAvatarRoutes(app: FastifyInstance, db: Database.Database): void {
   app.patch('/api/students/:id/avatar', { preHandler: app.authRequired }, async (req, reply) => {
@@ -34,7 +30,7 @@ export function registerAvatarRoutes(app: FastifyInstance, db: Database.Database
       d.pet_name !== undefined ? d.pet_name : s.pet_name,
       id,
     );
-    return studentById(db, id);
+    return getStudentById(db, id);
   });
 
   app.post('/api/students/:id/photo', { preHandler: app.authRequired }, async (req, reply) => {
@@ -48,7 +44,7 @@ export function registerAvatarRoutes(app: FastifyInstance, db: Database.Database
     try { path = saveDataUrl(app.uploadRoot, parsed.data.data_url); } catch { return reply.code(400).send({ error: 'bad_image' }); }
     db.prepare("UPDATE students SET photo_path = ?, avatar_mode = 'photo' WHERE id = ?").run(path, id);
     deleteUpload(app.uploadRoot, s.photo_path);
-    return studentById(db, id);
+    return getStudentById(db, id);
   });
 
   app.post('/api/classes/:classId/assign-pets', { preHandler: app.authRequired }, async (req, reply) => {

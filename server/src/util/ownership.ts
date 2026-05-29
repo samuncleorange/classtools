@@ -81,6 +81,10 @@ export function getOwnedMedal(db: Database.Database, medalId: number, teacherId:
     .get(medalId, teacherId) as MedalRow | undefined;
 }
 
+export function getStudentById(db: Database.Database, id: number): StudentRow {
+  return db.prepare('SELECT * FROM students WHERE id = ?').get(id) as StudentRow;
+}
+
 /** 返回属于该老师(经其班级)的分组，否则 undefined */
 export function getOwnedGroup(
   db: Database.Database,

@@ -66,4 +66,19 @@ describe('wall routes', () => {
     const data = (await app.inject({ method: 'GET', url: `/api/wall/${cls.wall_token}` })).json();
     expect(data.honor_roll).toHaveLength(0);
   });
+
+  it('show_medals_on_wall 关闭时学生奖章为空', async () => {
+    const s = await addStudent('小明');
+    const item = (await app.inject({ method: 'POST', url: `/api/classes/${cls.id}/point-items`, cookies: { sid }, payload: { kind: 'add', label: 'x', points: 30 } })).json();
+    await app.inject({ method: 'POST', url: `/api/students/${s.id}/award`, cookies: { sid }, payload: { item_id: item.id } });
+    const medal = (await app.inject({ method: 'POST', url: `/api/classes/${cls.id}/medals`, cookies: { sid }, payload: { name: 'm', cost_points: 10 } })).json();
+    await app.inject({ method: 'POST', url: `/api/students/${s.id}/redeem`, cookies: { sid }, payload: { medal_id: medal.id } });
+    // 开启时有奖章
+    const on = (await app.inject({ method: 'GET', url: `/api/wall/${cls.wall_token}` })).json();
+    expect(on.students[0].medals.length).toBe(1);
+    // 关闭后为空
+    await app.inject({ method: 'PATCH', url: `/api/classes/${cls.id}`, cookies: { sid }, payload: { show_medals_on_wall: false } });
+    const off = (await app.inject({ method: 'GET', url: `/api/wall/${cls.wall_token}` })).json();
+    expect(off.students[0].medals).toHaveLength(0);
+  });
 });

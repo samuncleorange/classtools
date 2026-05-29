@@ -1,7 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import type Database from 'better-sqlite3';
 import { z } from 'zod';
-import { getOwnedClass, getOwnedStudent, type StudentRow } from '../util/ownership.js';
+import { getOwnedClass, getOwnedStudent, getStudentById, type StudentRow } from '../util/ownership.js';
 import { intParam } from '../util/params.js';
 import { generateToken } from '../util/token.js';
 
@@ -9,10 +9,6 @@ interface ItemRow { id: number; class_id: number; kind: 'add' | 'subtract'; labe
 
 const awardBody = z.object({ item_id: z.number().int() });
 const batchBody = z.object({ student_ids: z.array(z.number().int()), item_id: z.number().int() });
-
-function studentById(db: Database.Database, id: number): StudentRow {
-  return db.prepare('SELECT * FROM students WHERE id = ?').get(id) as StudentRow;
-}
 
 /** 取属于该班的项目 */
 function itemInClass(db: Database.Database, itemId: number, classId: number): ItemRow | undefined {
@@ -37,7 +33,7 @@ function applyItem(db: Database.Database, student: StudentRow, item: ItemRow, ba
     `INSERT INTO point_logs (student_id,batch_id,delta_growth,delta_spendable,reason,growth_after,spendable_after,created_at)
      VALUES (?,?,?,?,?,?,?,?)`,
   ).run(student.id, batchId, deltaGrowth, deltaSpendable, item.label, growthAfter, spendableAfter, now);
-  return studentById(db, student.id);
+  return getStudentById(db, student.id);
 }
 
 export function registerAwardRoutes(app: FastifyInstance, db: Database.Database): void {

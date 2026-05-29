@@ -1,8 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import type Database from 'better-sqlite3';
 import { z } from 'zod';
-import { getOwnedClass } from '../util/ownership.js';
-import { getOwnedMedal, type MedalRow } from '../util/ownership.js';
+import { getOwnedClass, getOwnedMedal, type MedalRow } from '../util/ownership.js';
 import { intParam } from '../util/params.js';
 import { saveDataUrl, deleteUpload } from '../util/upload.js';
 
@@ -50,11 +49,18 @@ export function registerMedalRoutes(app: FastifyInstance, db: Database.Database)
     const medal = getOwnedMedal(db, id, req.teacherId);
     if (!medal) return reply.code(404).send({ error: 'not_found' });
     let imagePath = medal.image_path;
+    let oldImage: string | null = null;
     if (parsed.data.data_url) {
-      try { imagePath = saveDataUrl(app.uploadRoot, parsed.data.data_url); deleteUpload(app.uploadRoot, medal.image_path); } catch { return reply.code(400).send({ error: 'bad_image' }); }
+      try {
+        imagePath = saveDataUrl(app.uploadRoot, parsed.data.data_url);
+        oldImage = medal.image_path;
+      } catch {
+        return reply.code(400).send({ error: 'bad_image' });
+      }
     }
     db.prepare('UPDATE medals SET name = ?, icon = ?, image_path = ?, cost_points = ? WHERE id = ?')
       .run(parsed.data.name ?? medal.name, parsed.data.icon ?? medal.icon, imagePath, parsed.data.cost_points ?? medal.cost_points, id);
+    if (oldImage) deleteUpload(app.uploadRoot, oldImage);
     return db.prepare('SELECT * FROM medals WHERE id = ?').get(id);
   });
 

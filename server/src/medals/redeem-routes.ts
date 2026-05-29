@@ -1,14 +1,10 @@
 import type { FastifyInstance } from 'fastify';
 import type Database from 'better-sqlite3';
 import { z } from 'zod';
-import { getOwnedStudent, type StudentRow } from '../util/ownership.js';
+import { getOwnedStudent, getStudentById } from '../util/ownership.js';
 import { intParam } from '../util/params.js';
 
-const redeemBody = z.object({ medal_id: z.number().int() });
-
-function studentById(db: Database.Database, id: number): StudentRow {
-  return db.prepare('SELECT * FROM students WHERE id = ?').get(id) as StudentRow;
-}
+const redeemBody = z.object({ medal_id: z.number().int().positive() });
 
 export function registerRedeemRoutes(app: FastifyInstance, db: Database.Database): void {
   app.post('/api/students/:id/redeem', { preHandler: app.authRequired }, async (req, reply) => {
@@ -26,7 +22,7 @@ export function registerRedeemRoutes(app: FastifyInstance, db: Database.Database
       db.prepare('INSERT INTO student_medals (student_id, medal_id, cost_at, redeemed_at) VALUES (?,?,?,?)').run(id, medal.id, medal.cost_points, new Date().toISOString());
     });
     tx();
-    return studentById(db, id);
+    return getStudentById(db, id);
   });
 
   app.get('/api/students/:id/medals', { preHandler: app.authRequired }, async (req, reply) => {
@@ -52,6 +48,6 @@ export function registerRedeemRoutes(app: FastifyInstance, db: Database.Database
       db.prepare('DELETE FROM student_medals WHERE id = ?').run(id);
     });
     tx();
-    return studentById(db, sm.student_id);
+    return getStudentById(db, sm.student_id);
   });
 }

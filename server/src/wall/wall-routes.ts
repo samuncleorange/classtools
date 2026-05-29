@@ -11,11 +11,11 @@ function maskName(name: string): string {
   return first ? `${first}○○` : '同学';
 }
 
-function resolveAvatar(db: Database.Database, s: StudentRow, cls: ClassRow, showReal: boolean): Avatar {
+function resolveAvatar(petStmt: Database.Statement, s: StudentRow, cls: ClassRow, showReal: boolean): Avatar {
   const mode = s.avatar_mode ?? cls.display_mode;
   if (showReal && mode === 'photo' && s.photo_path) return { kind: 'photo', url: s.photo_path };
   if (s.pet_type_id != null) {
-    const pet = db.prepare('SELECT image_path FROM pet_types WHERE id = ?').get(s.pet_type_id) as { image_path: string } | undefined;
+    const pet = petStmt.get(s.pet_type_id) as { image_path: string } | undefined;
     if (pet) return { kind: 'pet', url: pet.image_path };
   }
   return { kind: 'none', url: null };
@@ -38,11 +38,12 @@ export function registerWallRoutes(app: FastifyInstance, db: Database.Database):
       `SELECT m.name, m.icon, m.image_path FROM student_medals sm JOIN medals m ON m.id = sm.medal_id WHERE sm.student_id = ? ORDER BY sm.id`,
     );
 
+    const petStmt = db.prepare('SELECT image_path FROM pet_types WHERE id = ?');
     const wallStudents = students.map((s) => ({
       display_name: showReal ? s.name : s.pet_name && s.pet_name.trim() ? s.pet_name : maskName(s.name),
       growth_points: s.growth_points,
       spendable_points: s.spendable_points,
-      avatar: resolveAvatar(db, s, cls, showReal),
+      avatar: resolveAvatar(petStmt, s, cls, showReal),
       medals: showMedals ? (medalStmt.all(s.id) as { name: string; icon: string; image_path: string | null }[]) : [],
     }));
 
@@ -54,7 +55,7 @@ export function registerWallRoutes(app: FastifyInstance, db: Database.Database):
             rank: i + 1,
             display_name: showReal ? s.name : s.pet_name && s.pet_name.trim() ? s.pet_name : maskName(s.name),
             growth_points: s.growth_points,
-            avatar: resolveAvatar(db, s, cls, showReal),
+            avatar: resolveAvatar(petStmt, s, cls, showReal),
           }))
       : [];
 
