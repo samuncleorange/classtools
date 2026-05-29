@@ -5,7 +5,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { LoginPage } from '../pages/LoginPage';
 
 function renderPage() {
-  const qc = new QueryClient();
+  const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
     <QueryClientProvider client={qc}>
       <MemoryRouter>

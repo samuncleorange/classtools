@@ -12,6 +12,7 @@ export function DashboardPage() {
           <span className="text-slate-500">{me.data?.username}</span>
           <button
             onClick={() => logout.mutate()}
+            disabled={logout.isPending}
             className="rounded-lg bg-accent-400 px-3 py-1.5 font-medium text-white hover:bg-accent-500"
           >
             退出

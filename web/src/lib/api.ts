@@ -9,9 +9,9 @@ export class ApiError extends Error {
 
 export async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(path, {
+    ...init,
     credentials: 'include',
     headers: { 'Content-Type': 'application/json', ...(init?.headers ?? {}) },
-    ...init,
   });
   if (!res.ok) {
     let code = 'error';

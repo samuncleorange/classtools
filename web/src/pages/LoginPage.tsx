@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLogin } from '../lib/auth';
+import { ApiError } from '../lib/api';
 
 export function LoginPage() {
   const [username, setUsername] = useState('');
@@ -26,6 +27,7 @@ export function LoginPage() {
         <label className="mb-3 block text-sm font-medium text-slate-600">
           用户名
           <input
+            name="username"
             className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-200"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
@@ -36,6 +38,7 @@ export function LoginPage() {
           密码
           <input
             type="password"
+            name="password"
             className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-200"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -43,7 +46,11 @@ export function LoginPage() {
           />
         </label>
         {login.isError && (
-          <p className="mb-3 text-sm text-lose-500">用户名或密码错误</p>
+          <p className="mb-3 text-sm text-lose-500">
+            {login.error instanceof ApiError && login.error.status === 401
+              ? '用户名或密码错误'
+              : '登录失败，请稍后重试'}
+          </p>
         )}
         <button
           type="submit"
