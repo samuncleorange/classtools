@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { PointsModal } from '../components/PointsModal';
 import type { Student } from '../lib/types';
@@ -38,7 +38,7 @@ describe('PointsModal', () => {
   it('切到扣分标签显示减分项目', async () => {
     renderModal();
     await waitFor(() => screen.getByText('作业完成'));
-    screen.getByRole('button', { name: /扣分/ }).click();
+    fireEvent.click(screen.getByRole('button', { name: /扣分/ }));
     await waitFor(() => expect(screen.getByText('迟到')).toBeInTheDocument());
   });
 });

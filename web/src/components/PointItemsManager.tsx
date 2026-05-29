@@ -43,7 +43,14 @@ export function PointItemsManager({ classId }: { classId: number }) {
                 <span className="flex items-center gap-2"><span>{it.icon}</span>{it.label}</span>
                 <span className="flex items-center gap-2">
                   <span className={`font-bold ${color === 'gain' ? 'text-gain-600' : 'text-lose-600'}`}>{color === 'gain' ? '+' : '-'}{it.points}</span>
-                  <button onClick={() => del.mutate(it.id)} className="text-xs text-slate-400 hover:text-lose-600" aria-label={`删除 ${it.label}`}>✕</button>
+                  <button
+                    onClick={() => { if (confirm(`确定删除「${it.label}」项目？`)) del.mutate(it.id); }}
+                    disabled={del.isPending}
+                    className="text-xs text-slate-400 hover:text-lose-600 disabled:opacity-50"
+                    aria-label={`删除 ${it.label}`}
+                  >
+                    ✕
+                  </button>
                 </span>
               </div>
             ))}

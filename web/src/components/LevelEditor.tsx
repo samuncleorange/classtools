@@ -25,7 +25,7 @@ export function LevelEditor({ classId }: { classId: number }) {
       <p className="mb-3 text-sm text-slate-500">设置各等级所需「成长值」。Lv.1 固定为 0,数值需随等级递增。</p>
       <div className="grid grid-cols-3 gap-3 sm:grid-cols-5">
         {values.map((v, i) => (
-          <label key={i} className="text-xs text-slate-500">
+          <label key={`lv-${i + 1}`} className="text-xs text-slate-500">
             Lv.{i + 1}
             <input
               type="number"

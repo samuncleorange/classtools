@@ -58,7 +58,7 @@ export function SettingsModal({ open, onClose }: { open: boolean; onClose: () =>
       {tab === 'roster' && current && <StudentRoster classId={current.id} />}
       {tab === 'groups' && current && <GroupManager classId={current.id} />}
       {tab === 'items' && current && <PointItemsManager classId={current.id} />}
-      {tab === 'levels' && current && <LevelEditor classId={current.id} />}
+      {tab === 'levels' && current && <LevelEditor key={current.id} classId={current.id} />}
 
       {tab === 'class' && (
         <div className="space-y-6">
