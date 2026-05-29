@@ -7,6 +7,7 @@ import { existsSync } from 'node:fs';
 import type Database from 'better-sqlite3';
 import type { Config } from './config.js';
 import { registerAuthRoutes } from './auth/routes.js';
+import { registerClassRoutes } from './classes/routes.js';
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -38,6 +39,7 @@ export async function buildApp(deps: {
   app.get('/api/health', async () => ({ status: 'ok' }));
 
   registerAuthRoutes(app, db, { secure: config.NODE_ENV === 'production' });
+  registerClassRoutes(app, db);
 
   // 生产环境：托管打包后的前端，并对非 /api 路由回退到 index.html（SPA）
   if (config.NODE_ENV === 'production') {
