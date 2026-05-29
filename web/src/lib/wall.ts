@@ -3,7 +3,7 @@ import { api } from './api';
 import type { WallData, Class } from './types';
 
 export function useWall(token: string) {
-  return useQuery<WallData>({ queryKey: ['wall', token], queryFn: () => api<WallData>(`/api/wall/${token}`), refetchInterval: 15000 });
+  return useQuery<WallData>({ queryKey: ['wall', token], queryFn: () => api<WallData>(`/api/wall/${token}`), refetchInterval: 15000, refetchOnWindowFocus: false });
 }
 export function useResetWallToken(classId: number) {
   const qc = useQueryClient();

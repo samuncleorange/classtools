@@ -13,6 +13,7 @@ export function StudentCard({
   onPoints,
   onLogs,
   onAvatar,
+  onRedeem,
 }: {
   student: Student;
   levels: LevelConfig[];
@@ -22,6 +23,7 @@ export function StudentCard({
   onPoints: (s: Student) => void;
   onLogs: (s: Student) => void;
   onAvatar: (s: Student) => void;
+  onRedeem: (s: Student) => void;
 }) {
   const prog = levels.length === 9 ? levelProgress(student.growth_points, levels) : { level: 1, isMax: false, toNext: 0, ratio: 0 };
   const mode = student.avatar_mode ?? cls.display_mode;
@@ -38,6 +40,7 @@ export function StudentCard({
         <div className="flex gap-1">
           <button onClick={() => onAvatar(student)} className="text-xs text-slate-400 hover:text-brand-500" aria-label={`${student.name} 换装`}>换装</button>
           <button onClick={() => onLogs(student)} className="text-xs text-slate-400 hover:text-brand-500" aria-label={`${student.name} 积分记录`}>记录</button>
+          <button onClick={() => onRedeem(student)} className="text-xs text-slate-400 hover:text-accent-500" aria-label={`${student.name} 兑换奖章`}>奖章</button>
         </div>
       </div>
       <button onClick={() => onPoints(student)} className="block w-full text-center" aria-label={`给 ${student.name} 加减分`}>

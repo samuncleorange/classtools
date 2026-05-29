@@ -17,7 +17,7 @@ export function useCreateClass() {
 export function useUpdateClass() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (input: { id: number; name?: string; display_mode?: 'pet' | 'photo'; life_cycle_enabled?: boolean; hunger_days?: number; death_days?: number }) => {
+    mutationFn: (input: { id: number; name?: string; display_mode?: 'pet' | 'photo'; life_cycle_enabled?: boolean; hunger_days?: number; death_days?: number; public_show_real?: boolean; honor_roll_on_wall?: boolean; show_medals_on_wall?: boolean }) => {
       const { id, ...patch } = input;
       return api<Class>(`/api/classes/${id}`, { method: 'PATCH', body: JSON.stringify(patch) });
     },

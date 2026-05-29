@@ -35,7 +35,8 @@ export function PublicWall({ data }: { data: WallData }) {
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
         {students.map((s, i) => {
-          const prog = levels.length === 9 ? levelProgress(s.growth_points, levels.map((l) => ({ class_id: 0, ...l }))) : { level: 1, isMax: false, toNext: 0, ratio: 0 };
+          // 有等级配置才计算,否则占位
+          const prog = levels.length > 0 ? levelProgress(s.growth_points, levels.map((l) => ({ class_id: 0, ...l }))) : { level: 1, isMax: false, toNext: 0, ratio: 0 };
           return (
             <div key={i} className="rounded-2xl bg-white p-4 text-center shadow ring-1 ring-brand-100">
               <div className="mb-2 flex justify-center"><Avatar avatar={s.avatar} size="h-16 w-16" /></div>

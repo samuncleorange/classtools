@@ -13,6 +13,7 @@ import { BatchPointsBar } from '../components/BatchPointsBar';
 import { usePetTypes } from '../lib/petTypes';
 import { useAssignPets } from '../lib/avatar';
 import { AvatarPicker } from '../components/AvatarPicker';
+import { RedeemModal } from '../components/RedeemModal';
 import type { Student } from '../lib/types';
 
 export function DashboardPage() {
@@ -31,6 +32,7 @@ export function DashboardPage() {
   const [batchMode, setBatchMode] = useState(false);
   const [selected, setSelected] = useState<number[]>([]);
   const [avatarFor, setAvatarFor] = useState<Student | null>(null);
+  const [redeemFor, setRedeemFor] = useState<Student | null>(null);
 
   // 切换班级时重置交互状态，避免对旧班学生执行操作
   useEffect(() => {
@@ -39,6 +41,7 @@ export function DashboardPage() {
     setPointsFor(null);
     setLogsFor(null);
     setAvatarFor(null);
+    setRedeemFor(null);
   }, [current?.id]);
 
   const now = useMemo(() => new Date(), []);
@@ -119,6 +122,7 @@ export function DashboardPage() {
                   onPoints={setPointsFor}
                   onLogs={setLogsFor}
                   onAvatar={setAvatarFor}
+                  onRedeem={setRedeemFor}
                 />
               ),
             )}
@@ -127,10 +131,17 @@ export function DashboardPage() {
       </main>
 
       <SettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} />
-      {pointsFor && current && <PointsModal classId={current.id} student={pointsFor} onClose={() => setPointsFor(null)} />}
+      {pointsFor && current && (() => {
+        const live = students.find((s) => s.id === pointsFor.id) ?? pointsFor;
+        return <PointsModal classId={current.id} student={live} onClose={() => setPointsFor(null)} />;
+      })()}
       {logsFor && <StudentLogsModal student={logsFor} onClose={() => setLogsFor(null)} />}
       {batchMode && current && <BatchPointsBar classId={current.id} selectedIds={selected} onDone={() => setSelected([])} />}
       {avatarFor && current && <AvatarPicker classId={current.id} student={avatarFor} onClose={() => setAvatarFor(null)} />}
+      {redeemFor && current && (() => {
+        const live = students.find((s) => s.id === redeemFor.id) ?? redeemFor;
+        return <RedeemModal classId={current.id} student={live} onClose={() => setRedeemFor(null)} />;
+      })()}
     </div>
   );
 }

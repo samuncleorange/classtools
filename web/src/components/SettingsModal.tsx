@@ -5,10 +5,12 @@ import { GroupManager } from './GroupManager';
 import { PointItemsManager } from './PointItemsManager';
 import { LevelEditor } from './LevelEditor';
 import { PetTypesManager } from './PetTypesManager';
+import { MedalsManager } from './MedalsManager';
 import { useCurrentClass } from '../state/CurrentClass';
 import { useCreateClass, useUpdateClass, useDeleteClass } from '../lib/classes';
+import { useResetWallToken } from '../lib/wall';
 
-type Tab = 'roster' | 'groups' | 'items' | 'levels' | 'pets' | 'class';
+type Tab = 'roster' | 'groups' | 'items' | 'levels' | 'pets' | 'medals' | 'class';
 
 export function SettingsModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { current, classes, setCurrentId } = useCurrentClass();
@@ -18,6 +20,7 @@ export function SettingsModal({ open, onClose }: { open: boolean; onClose: () =>
   const deleteClass = useDeleteClass();
   const [newClassName, setNewClassName] = useState('');
   const [renameValue, setRenameValue] = useState('');
+  const resetToken = useResetWallToken(current?.id ?? 0);
 
   function addClass() {
     const n = newClassName.trim();
@@ -39,6 +42,7 @@ export function SettingsModal({ open, onClose }: { open: boolean; onClose: () =>
           ['items', '积分项目'],
           ['levels', '等级'],
           ['pets', '宠物'],
+          ['medals', '奖章'],
           ['class', '班级设置'],
         ] as [Tab, string][]).map(([key, label]) => (
           <button
@@ -62,6 +66,7 @@ export function SettingsModal({ open, onClose }: { open: boolean; onClose: () =>
       {tab === 'items' && current && <PointItemsManager classId={current.id} />}
       {tab === 'levels' && current && <LevelEditor key={current.id} classId={current.id} />}
       {tab === 'pets' && <PetTypesManager />}
+      {tab === 'medals' && current && <MedalsManager classId={current.id} />}
 
       {tab === 'class' && (
         <div className="space-y-6">
@@ -144,6 +149,25 @@ export function SettingsModal({ open, onClose }: { open: boolean; onClose: () =>
                     </label>
                   </div>
                 )}
+              </div>
+
+              <div className="border-t border-slate-100 pt-4">
+                <h3 className="mb-2 text-sm font-semibold text-slate-600">公共展示墙</h3>
+                <div className="mb-2 flex items-center gap-2">
+                  <input
+                    readOnly
+                    value={`${window.location.origin}/wall/${current.wall_token}`}
+                    className="flex-1 rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-xs text-slate-500"
+                    aria-label="公共链接"
+                  />
+                  <button onClick={() => navigator.clipboard?.writeText(`${window.location.origin}/wall/${current.wall_token}`)} className="rounded-md border border-brand-300 px-2 py-1 text-xs text-brand-600 hover:bg-brand-50">复制</button>
+                  <button onClick={() => { if (confirm('重置后旧链接立即失效,确定？')) resetToken.mutate(); }} className="rounded-md border border-slate-200 px-2 py-1 text-xs text-slate-500 hover:bg-slate-50">重置</button>
+                </div>
+                <div className="space-y-1 text-sm text-slate-600">
+                  <label className="flex items-center gap-2"><input type="checkbox" checked={current.public_show_real === 1} onChange={(e) => updateClass.mutate({ id: current.id, public_show_real: e.target.checked })} />显示真实姓名与照片(关闭则用昵称/宠物,保护隐私)</label>
+                  <label className="flex items-center gap-2"><input type="checkbox" checked={current.honor_roll_on_wall === 1} onChange={(e) => updateClass.mutate({ id: current.id, honor_roll_on_wall: e.target.checked })} />显示光荣榜</label>
+                  <label className="flex items-center gap-2"><input type="checkbox" checked={current.show_medals_on_wall === 1} onChange={(e) => updateClass.mutate({ id: current.id, show_medals_on_wall: e.target.checked })} />在卡片下显示奖章</label>
+                </div>
               </div>
 
               <div className="border-t border-slate-100 pt-4">
