@@ -25,7 +25,7 @@ export function StudentCard({
   onAvatar: (s: Student) => void;
   onRedeem: (s: Student) => void;
 }) {
-  const prog = levels.length === 9 ? levelProgress(student.growth_points, levels) : { level: 1, isMax: false, toNext: 0, ratio: 0 };
+  const prog = levels.length > 0 ? levelProgress(student.growth_points, levels) : { level: 1, isMax: false, toNext: 0, ratio: 0 };
   const mode = student.avatar_mode ?? cls.display_mode;
   const pet = student.pet_type_id != null ? pets.find((p) => p.id === student.pet_type_id) : undefined;
   const status = petStatus(student.last_award_at, cls.life_cycle_enabled === 1, cls.hunger_days, cls.death_days, now, student.created_at);
