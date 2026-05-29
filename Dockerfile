@@ -15,8 +15,9 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 COPY server/package.json server/package.json
 COPY web/package.json web/package.json
-# 仅安装 server 运行所需的生产依赖（含 better-sqlite3 原生模块）
-RUN npm ci --omit=dev -w server
+# 从构建阶段拷贝已编译好的依赖（含 better-sqlite3 原生二进制），再裁剪开发依赖
+COPY --from=build /app/node_modules ./node_modules
+RUN npm prune --omit=dev
 COPY --from=build /app/server/dist ./server/dist
 COPY --from=build /app/web/dist ./web/dist
 EXPOSE 8080
