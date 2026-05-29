@@ -9,6 +9,9 @@ const createBody = z.object({ name: z.string().trim().min(1) });
 const updateBody = z.object({
   name: z.string().trim().min(1).optional(),
   display_mode: z.enum(['pet', 'photo']).optional(),
+  life_cycle_enabled: z.boolean().optional(),
+  hunger_days: z.number().int().min(1).optional(),
+  death_days: z.number().int().min(1).optional(),
 });
 
 export function registerClassRoutes(app: FastifyInstance, db: Database.Database): void {
@@ -38,7 +41,12 @@ export function registerClassRoutes(app: FastifyInstance, db: Database.Database)
     if (!cls) return reply.code(404).send({ error: 'not_found' });
     const name = parsed.data.name ?? cls.name;
     const mode = parsed.data.display_mode ?? cls.display_mode;
-    db.prepare('UPDATE classes SET name = ?, display_mode = ? WHERE id = ?').run(name, mode, id);
+    const lce = parsed.data.life_cycle_enabled !== undefined ? (parsed.data.life_cycle_enabled ? 1 : 0) : cls.life_cycle_enabled;
+    const hunger = parsed.data.hunger_days ?? cls.hunger_days;
+    const death = parsed.data.death_days ?? cls.death_days;
+    if (hunger >= death) return reply.code(400).send({ error: 'hunger_must_be_less_than_death' });
+    db.prepare('UPDATE classes SET name = ?, display_mode = ?, life_cycle_enabled = ?, hunger_days = ?, death_days = ? WHERE id = ?')
+      .run(name, mode, lce, hunger, death, id);
     return db.prepare('SELECT * FROM classes WHERE id = ?').get(id);
   });
 

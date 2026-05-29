@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useLogout } from '../lib/auth';
 import { useCurrentClass } from '../state/CurrentClass';
 import { useStudents } from '../lib/students';
@@ -10,6 +10,9 @@ import { StudentCard } from '../components/StudentCard';
 import { PointsModal } from '../components/PointsModal';
 import { StudentLogsModal } from '../components/StudentLogsModal';
 import { BatchPointsBar } from '../components/BatchPointsBar';
+import { usePetTypes } from '../lib/petTypes';
+import { useAssignPets } from '../lib/avatar';
+import { AvatarPicker } from '../components/AvatarPicker';
 import type { Student } from '../lib/types';
 
 export function DashboardPage() {
@@ -19,12 +22,15 @@ export function DashboardPage() {
   const { data: students = [] } = useStudents(classId);
   const { data: levels = [] } = useLevels(classId);
   const undo = useUndo(current?.id ?? 0);
+  const { data: pets = [] } = usePetTypes();
+  const assignPets = useAssignPets(current?.id ?? 0);
 
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [pointsFor, setPointsFor] = useState<Student | null>(null);
   const [logsFor, setLogsFor] = useState<Student | null>(null);
   const [batchMode, setBatchMode] = useState(false);
   const [selected, setSelected] = useState<number[]>([]);
+  const [avatarFor, setAvatarFor] = useState<Student | null>(null);
 
   // 切换班级时重置交互状态，避免对旧班学生执行操作
   useEffect(() => {
@@ -32,7 +38,10 @@ export function DashboardPage() {
     setSelected([]);
     setPointsFor(null);
     setLogsFor(null);
+    setAvatarFor(null);
   }, [current?.id]);
+
+  const now = useMemo(() => new Date(), []);
 
   function toggle(id: number) {
     setSelected((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
@@ -61,6 +70,11 @@ export function DashboardPage() {
               >
                 ↩ 撤销
               </button>
+              <button
+                onClick={() => { if (pets.length === 0) { alert('请先在「设置 → 宠物」上传宠物'); return; } assignPets.mutate(); }}
+                disabled={assignPets.isPending}
+                className="rounded-lg border border-slate-200 px-3 py-1.5 font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-50"
+              >🎲 一键分配</button>
             </>
           )}
           <button onClick={() => setSettingsOpen(true)} className="rounded-lg border border-slate-200 px-3 py-1.5 font-medium text-slate-600 hover:bg-slate-50">⚙️ 设置</button>
@@ -95,7 +109,17 @@ export function DashboardPage() {
                   <div className="mt-1 text-xs text-accent-600">🍪 {s.spendable_points}</div>
                 </button>
               ) : (
-                <StudentCard key={s.id} student={s} levels={levels} onPoints={setPointsFor} onLogs={setLogsFor} />
+                <StudentCard
+                  key={s.id}
+                  student={s}
+                  levels={levels}
+                  cls={current}
+                  pets={pets}
+                  now={now}
+                  onPoints={setPointsFor}
+                  onLogs={setLogsFor}
+                  onAvatar={setAvatarFor}
+                />
               ),
             )}
           </div>
@@ -106,6 +130,7 @@ export function DashboardPage() {
       {pointsFor && current && <PointsModal classId={current.id} student={pointsFor} onClose={() => setPointsFor(null)} />}
       {logsFor && <StudentLogsModal student={logsFor} onClose={() => setLogsFor(null)} />}
       {batchMode && current && <BatchPointsBar classId={current.id} selectedIds={selected} onDone={() => setSelected([])} />}
+      {avatarFor && current && <AvatarPicker classId={current.id} student={avatarFor} onClose={() => setAvatarFor(null)} />}
     </div>
   );
 }

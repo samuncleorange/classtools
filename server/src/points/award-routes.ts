@@ -32,7 +32,7 @@ function applyItem(db: Database.Database, student: StudentRow, item: ItemRow, ba
   }
   const growthAfter = student.growth_points + deltaGrowth;
   const spendableAfter = student.spendable_points + deltaSpendable;
-  db.prepare('UPDATE students SET growth_points = ?, spendable_points = ? WHERE id = ?').run(growthAfter, spendableAfter, student.id);
+  db.prepare('UPDATE students SET growth_points = ?, spendable_points = ?, last_award_at = ? WHERE id = ?').run(growthAfter, spendableAfter, now, student.id);
   db.prepare(
     `INSERT INTO point_logs (student_id,batch_id,delta_growth,delta_spendable,reason,growth_after,spendable_after,created_at)
      VALUES (?,?,?,?,?,?,?,?)`,

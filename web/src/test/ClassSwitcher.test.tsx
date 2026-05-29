@@ -14,9 +14,9 @@ describe('ClassSwitcher', () => {
   it('显示当前班级名', () => {
     renderWith(
       <CurrentClassTestProvider value={{
-        classes: [{ id: 1, name: '一班', display_mode: 'pet', wall_token: 't', created_at: '' }],
+        classes: [{ id: 1, name: '一班', display_mode: 'pet', wall_token: 't', created_at: '', life_cycle_enabled: 0, hunger_days: 3, death_days: 7 }],
         currentId: 1,
-        current: { id: 1, name: '一班', display_mode: 'pet', wall_token: 't', created_at: '' },
+        current: { id: 1, name: '一班', display_mode: 'pet', wall_token: 't', created_at: '', life_cycle_enabled: 0, hunger_days: 3, death_days: 7 },
         setCurrentId: () => {},
         isLoading: false,
       }}>
