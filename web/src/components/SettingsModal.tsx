@@ -2,10 +2,12 @@ import { useState } from 'react';
 import { Modal } from './Modal';
 import { StudentRoster } from './StudentRoster';
 import { GroupManager } from './GroupManager';
+import { PointItemsManager } from './PointItemsManager';
+import { LevelEditor } from './LevelEditor';
 import { useCurrentClass } from '../state/CurrentClass';
 import { useCreateClass, useUpdateClass, useDeleteClass } from '../lib/classes';
 
-type Tab = 'roster' | 'groups' | 'class';
+type Tab = 'roster' | 'groups' | 'items' | 'levels' | 'class';
 
 export function SettingsModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { current, classes, setCurrentId } = useCurrentClass();
@@ -33,6 +35,8 @@ export function SettingsModal({ open, onClose }: { open: boolean; onClose: () =>
         {([
           ['roster', '学生名单'],
           ['groups', '分组'],
+          ['items', '积分项目'],
+          ['levels', '等级'],
           ['class', '班级设置'],
         ] as [Tab, string][]).map(([key, label]) => (
           <button
@@ -53,6 +57,8 @@ export function SettingsModal({ open, onClose }: { open: boolean; onClose: () =>
 
       {tab === 'roster' && current && <StudentRoster classId={current.id} />}
       {tab === 'groups' && current && <GroupManager classId={current.id} />}
+      {tab === 'items' && current && <PointItemsManager classId={current.id} />}
+      {tab === 'levels' && current && <LevelEditor key={current.id} classId={current.id} />}
 
       {tab === 'class' && (
         <div className="space-y-6">

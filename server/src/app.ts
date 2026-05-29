@@ -10,6 +10,9 @@ import { registerAuthRoutes } from './auth/routes.js';
 import { registerClassRoutes } from './classes/routes.js';
 import { registerGroupRoutes } from './groups/routes.js';
 import { registerStudentRoutes } from './students/routes.js';
+import { registerPointItemRoutes } from './points/items-routes.js';
+import { registerLevelRoutes } from './points/levels-routes.js';
+import { registerAwardRoutes } from './points/award-routes.js';
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -44,6 +47,9 @@ export async function buildApp(deps: {
   registerClassRoutes(app, db);
   registerGroupRoutes(app, db);
   registerStudentRoutes(app, db);
+  registerPointItemRoutes(app, db);
+  registerLevelRoutes(app, db);
+  registerAwardRoutes(app, db);
 
   // 生产环境：托管打包后的前端，并对非 /api 路由回退到 index.html（SPA）
   if (config.NODE_ENV === 'production') {
