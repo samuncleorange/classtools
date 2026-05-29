@@ -36,7 +36,9 @@ export function GroupManager({ classId }: { classId: number }) {
           <li key={g.id} className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2 text-sm">
             <span className="text-slate-700">{g.name}</span>
             <button
-              onClick={() => deleteGroup.mutate(g.id)}
+              onClick={() => {
+                if (confirm(`确定删除分组「${g.name}」？组内学生将变为未分组。`)) deleteGroup.mutate(g.id);
+              }}
               className="text-lose-500 hover:text-lose-600"
               aria-label={`删除分组 ${g.name}`}
             >

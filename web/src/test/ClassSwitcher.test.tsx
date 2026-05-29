@@ -2,8 +2,6 @@ import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ClassSwitcher } from '../components/ClassSwitcher';
-import { useCurrentClass } from '../state/CurrentClass';
-
 // 用一个轻量假 Provider 注入受控值，避免依赖网络
 import { CurrentClassTestProvider } from '../state/CurrentClass.testkit';
 

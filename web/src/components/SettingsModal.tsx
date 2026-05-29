@@ -119,7 +119,7 @@ export function SettingsModal({ open, onClose }: { open: boolean; onClose: () =>
                 <button
                   onClick={() => {
                     if (confirm(`确定删除班级「${current.name}」？该班所有学生、分组都会被删除,不可撤销。`)) {
-                      deleteClass.mutate(current.id);
+                      deleteClass.mutate(current.id, { onSuccess: onClose });
                     }
                   }}
                   className="text-sm text-lose-500 hover:text-lose-600"
