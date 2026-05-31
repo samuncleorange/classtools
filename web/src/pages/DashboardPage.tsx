@@ -53,10 +53,13 @@ export function DashboardPage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl p-6 pb-28">
-      <header className="flex items-center justify-between rounded-2xl bg-white px-6 py-4 shadow ring-1 ring-brand-100">
+    <div className="mx-auto max-w-7xl p-4 pb-28 sm:p-6">
+      <header className="flex flex-wrap items-center justify-between gap-3 rounded-3xl bg-white/80 px-6 py-4 shadow-md ring-1 ring-brand-100 backdrop-blur">
         <div className="flex items-center gap-4">
-          <h1 className="text-xl font-bold text-brand-600">班级宠物园</h1>
+          <h1 className="flex items-center gap-1.5 text-xl font-extrabold">
+            <span>🐾</span>
+            <span className="bg-gradient-to-r from-brand-600 to-accent-400 bg-clip-text text-transparent">班级宠物园</span>
+          </h1>
           <ClassSwitcher onManage={() => setSettingsOpen(true)} />
         </div>
         <div className="flex items-center gap-2 text-sm">
@@ -101,17 +104,30 @@ export function DashboardPage() {
             <button onClick={() => setSettingsOpen(true)} className="rounded-lg bg-brand-500 px-5 py-2 font-medium text-white hover:bg-brand-600">去添加学生</button>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
             {students.map((s) =>
               batchMode ? (
                 <button
                   key={s.id}
                   onClick={() => toggle(s.id)}
-                  className={`rounded-2xl p-4 text-center shadow ring-2 transition ${selected.includes(s.id) ? 'bg-brand-50 ring-brand-400' : 'bg-white ring-transparent'}`}
+                  className={`group relative flex flex-col overflow-hidden rounded-3xl text-center shadow-md ring-2 transition ${selected.includes(s.id) ? 'ring-brand-500' : 'ring-transparent hover:ring-brand-200'}`}
                 >
-                  <div className="mx-auto mb-2 flex h-16 w-16 items-center justify-center rounded-full bg-brand-50 text-3xl">🐾</div>
-                  <div className="truncate text-sm font-semibold text-slate-700">{s.name}</div>
-                  <div className="mt-1 text-xs text-accent-600">🍪 {s.spendable_points}</div>
+                  <div className="flex h-32 items-center justify-center bg-gradient-to-b from-brand-50 via-mint-50 to-white">
+                    {(() => {
+                      const m = s.avatar_mode ?? current.display_mode;
+                      const p = s.pet_type_id != null ? pets.find((x) => x.id === s.pet_type_id) : undefined;
+                      if (m === 'photo' && s.photo_path) return <img src={s.photo_path} alt={s.name} className="h-full w-full object-cover" />;
+                      if (p) return <img src={p.image_path} alt={s.name} className="h-24 w-24 object-contain" />;
+                      return <span className="text-5xl">🐾</span>;
+                    })()}
+                  </div>
+                  <div className="bg-white p-3">
+                    <div className="truncate text-sm font-bold text-slate-700">{s.name}</div>
+                    <div className="text-xs font-semibold text-accent-600">🍪 {s.spendable_points}</div>
+                  </div>
+                  {selected.includes(s.id) && (
+                    <span className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-brand-500 text-xs font-bold text-white shadow">✓</span>
+                  )}
                 </button>
               ) : (
                 <StudentCard
