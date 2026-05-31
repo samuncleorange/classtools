@@ -49,4 +49,17 @@ describe('pet-types routes', () => {
     const res = await app.inject({ method: 'PATCH', url: '/api/pet-types/99999', cookies: { sid }, payload: { name: 'x' } });
     expect(res.statusCode).toBe(404);
   });
+
+  // 复现:浏览器 api() 给每个请求都带 application/json 头,无 body 的 DELETE
+  // 不应触发 FST_ERR_CTP_EMPTY_JSON_BODY(400)。
+  it('空 body + application/json 头的 DELETE 仍能删除(不报 400)', async () => {
+    const created = (await app.inject({ method: 'POST', url: '/api/pet-types', cookies: { sid }, payload: { name: 'c', data_url: PNG } })).json();
+    const del = await app.inject({
+      method: 'DELETE',
+      url: `/api/pet-types/${created.id}`,
+      cookies: { sid },
+      headers: { 'content-type': 'application/json' },
+    });
+    expect(del.statusCode).toBe(204);
+  });
 });
