@@ -28,7 +28,7 @@ export function PublicWall({ data }: { data: WallData }) {
         <h1 className="bg-gradient-to-r from-brand-600 to-accent-400 bg-clip-text text-4xl font-extrabold text-transparent drop-shadow-sm">
           {cls.name}
         </h1>
-        <p className="mt-1 text-sm text-slate-400">🐾 班级宠物园 · 共同见证成长</p>
+        <p className="mt-1 text-sm text-slate-400">⭐ 满天星积分榜 · 共同见证成长</p>
         <button
           onClick={() => {
             if (document.fullscreenElement) document.exitFullscreen();
@@ -66,40 +66,52 @@ export function PublicWall({ data }: { data: WallData }) {
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
-        {students.map((s, i) => {
-          const prog = lv.length > 0 ? levelProgress(s.growth_points, lv) : { level: 1, isMax: false, toNext: 0, ratio: 0 };
-          return (
-            <div key={i} className="flex flex-col overflow-hidden rounded-3xl bg-white shadow-md ring-1 ring-brand-100/70">
-              <div className="relative flex h-40 items-center justify-center bg-gradient-to-b from-brand-50 via-mint-50 to-white">
-                <Avatar avatar={s.avatar} className="h-full w-full" />
-                <span className={`absolute left-3 top-3 rounded-xl px-2.5 py-1 text-sm font-extrabold text-white shadow ${prog.isMax ? 'bg-accent-500' : 'bg-brand-500'}`}>
-                  Lv.{prog.level}
-                  {prog.isMax ? ' ★' : ''}
-                </span>
-              </div>
-              <div className="flex flex-col gap-2 p-4">
-                <div className="truncate text-center text-base font-bold text-slate-800">{s.display_name}</div>
-                <div className="h-2.5 w-full overflow-hidden rounded-full bg-slate-100">
-                  <div className="h-full rounded-full bg-gradient-to-r from-brand-400 to-brand-500" style={{ width: `${Math.round(prog.ratio * 100)}%` }} />
+      {/* 个人榜:按历史总积分从高到低排序;少列大卡,突出每人获得的奖章 */}
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 xl:grid-cols-3">
+        {[...students]
+          .sort((a, b) => b.growth_points - a.growth_points)
+          .map((s, i) => {
+            const prog = lv.length > 0 ? levelProgress(s.growth_points, lv) : { level: 1, isMax: false, toNext: 0, ratio: 0 };
+            return (
+              <div key={i} className="flex flex-col overflow-hidden rounded-3xl bg-white shadow-md ring-1 ring-brand-100/70">
+                {/* 顶部:头像 + 姓名 + 等级 + 历史总积分 + 进度 */}
+                <div className="flex items-center gap-4 p-4">
+                  <div className="relative shrink-0">
+                    <Avatar avatar={s.avatar} className="h-24 w-24 rounded-2xl bg-gradient-to-b from-brand-50 via-mint-50 to-white ring-1 ring-brand-100" />
+                    <span className={`absolute -left-1.5 -top-1.5 rounded-xl px-2 py-0.5 text-xs font-extrabold text-white shadow ${prog.isMax ? 'bg-accent-500' : 'bg-brand-500'}`}>
+                      Lv.{prog.level}{prog.isMax ? ' ★' : ''}
+                    </span>
+                  </div>
+                  <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+                    <div className="truncate text-lg font-bold text-slate-800">{s.display_name}</div>
+                    <div className="flex items-baseline gap-1.5">
+                      <span className="text-2xl font-extrabold text-brand-600">{s.growth_points}</span>
+                      <span className="text-xs font-medium text-slate-400">历史总积分</span>
+                    </div>
+                    <div className="h-2.5 w-full overflow-hidden rounded-full bg-slate-100">
+                      <div className="h-full rounded-full bg-gradient-to-r from-brand-400 to-brand-500" style={{ width: `${Math.round(prog.ratio * 100)}%` }} />
+                    </div>
+                  </div>
                 </div>
-                <div className="flex justify-center">
-                  <span className="inline-flex items-center gap-1 rounded-full bg-accent-50 px-3 py-1 text-sm font-bold text-accent-700">🍪 {s.spendable_points}</span>
-                </div>
+                {/* 奖章陈列:大图突出 */}
                 {cls.show_medals_on_wall && s.medals.length > 0 && (
-                  <div className="flex flex-wrap justify-center gap-1">
-                    {s.medals.map((m, j) => (
-                      <span key={j} title={m.name} className="inline-flex items-center gap-0.5 rounded-full bg-accent-50 px-2 py-0.5 text-[11px] text-slate-600 ring-1 ring-accent-100">
-                        {m.image_path ? <img src={m.image_path} alt={m.name} className="h-3.5 w-3.5 rounded object-cover" /> : <span>{m.icon}</span>}
-                        {m.name}
-                      </span>
-                    ))}
+                  <div className="border-t border-brand-50 bg-gradient-to-b from-accent-50/40 to-white px-4 py-3">
+                    <div className="mb-2 text-xs font-bold text-accent-600">🎖 获得的奖章</div>
+                    <div className="flex flex-wrap gap-3">
+                      {s.medals.map((m, j) => (
+                        <div key={j} title={m.name} className="flex w-16 flex-col items-center gap-1">
+                          <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-white shadow-sm ring-2 ring-accent-200">
+                            {m.image_path ? <img src={m.image_path} alt={m.name} className="h-full w-full object-cover" /> : <span className="text-3xl">{m.icon}</span>}
+                          </div>
+                          <span className="w-full truncate text-center text-[11px] font-medium text-slate-600">{m.name}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
       </div>
     </div>
   );

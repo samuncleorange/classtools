@@ -26,10 +26,10 @@ export function LoginPage() {
         <div className="p-8">
           <div className="mb-5 flex flex-col items-center">
             <div className="mb-3 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-400 to-brand-600 text-3xl shadow-lg shadow-brand-200">
-              🐾
+              ⭐
             </div>
             <h1 className="bg-gradient-to-r from-brand-600 to-accent-400 bg-clip-text text-2xl font-extrabold text-transparent">
-              班级宠物园
+              满天星积分榜
             </h1>
             <p className="mt-1 text-sm text-slate-400">让每个孩子在陪伴中成长</p>
           </div>
