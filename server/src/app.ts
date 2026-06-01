@@ -37,6 +37,22 @@ export async function buildApp(deps: {
   const { db, config } = deps;
   const app = Fastify({ logger: config.NODE_ENV !== 'test', trustProxy: true, bodyLimit: 10 * 1024 * 1024 });
 
+  // 容忍空 body 的 application/json 请求(浏览器 fetch 常给无 body 的 DELETE/POST 也带此头),
+  // 否则 Fastify 默认会抛 FST_ERR_CTP_EMPTY_JSON_BODY(400)。空 body → undefined,交给路由各自校验。
+  app.addContentTypeParser('application/json', { parseAs: 'string' }, (_req, body, done) => {
+    const text = (body as string).trim();
+    if (text === '') {
+      done(null, undefined);
+      return;
+    }
+    try {
+      done(null, JSON.parse(text));
+    } catch (err) {
+      (err as Error & { statusCode?: number }).statusCode = 400;
+      done(err as Error, undefined);
+    }
+  });
+
   await app.register(cookie, { secret: config.SESSION_SECRET });
 
   const uploadRoot = config.DATA_DIR === ':memory:' ? mkdtempSync(join(tmpdir(), 'classtools-test-')) : config.DATA_DIR;
