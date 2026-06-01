@@ -57,8 +57,8 @@ export function DashboardPage() {
       <header className="flex flex-wrap items-center justify-between gap-3 rounded-3xl bg-white/80 px-6 py-4 shadow-md ring-1 ring-brand-100 backdrop-blur">
         <div className="flex items-center gap-4">
           <h1 className="flex items-center gap-1.5 text-xl font-extrabold">
-            <span>🐾</span>
-            <span className="bg-gradient-to-r from-brand-600 to-accent-400 bg-clip-text text-transparent">班级宠物园</span>
+            <span>⭐</span>
+            <span className="bg-gradient-to-r from-brand-600 to-accent-400 bg-clip-text text-transparent">满天星积分榜</span>
           </h1>
           <ClassSwitcher onManage={() => setSettingsOpen(true)} />
         </div>

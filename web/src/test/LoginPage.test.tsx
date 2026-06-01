@@ -18,7 +18,7 @@ function renderPage() {
 describe('LoginPage', () => {
   it('渲染标题与登录按钮', () => {
     renderPage();
-    expect(screen.getByText('班级宠物园')).toBeInTheDocument();
+    expect(screen.getByText('满天星积分榜')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '登录' })).toBeInTheDocument();
   });
 
