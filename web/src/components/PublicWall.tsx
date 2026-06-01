@@ -67,13 +67,13 @@ export function PublicWall({ data }: { data: WallData }) {
       )}
 
       {/* 个人榜:按历史总积分从高到低排序;少列大卡,突出每人获得的奖章 */}
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-8">
         {[...students]
           .sort((a, b) => b.growth_points - a.growth_points)
           .map((s, i) => {
             const prog = lv.length > 0 ? levelProgress(s.growth_points, lv) : { level: 1, isMax: false, toNext: 0, ratio: 0 };
             return (
-              <div key={i} className="flex flex-col overflow-hidden rounded-3xl bg-white shadow-md ring-1 ring-brand-100/70">
+              <div key={i} className="flex flex-col overflow-hidden rounded-3xl bg-white shadow-xl shadow-slate-300/50 ring-1 ring-slate-200/80">
                 {/* 顶部:头像 + 姓名 + 等级 + 历史总积分 + 进度 */}
                 <div className="flex items-center gap-4 p-4">
                   <div className="relative shrink-0">
