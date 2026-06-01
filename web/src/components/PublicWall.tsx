@@ -67,7 +67,7 @@ export function PublicWall({ data }: { data: WallData }) {
       )}
 
       {/* 个人榜:按历史总积分从高到低排序;少列大卡,突出每人获得的奖章 */}
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 xl:grid-cols-3">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6">
         {[...students]
           .sort((a, b) => b.growth_points - a.growth_points)
           .map((s, i) => {
@@ -77,7 +77,7 @@ export function PublicWall({ data }: { data: WallData }) {
                 {/* 顶部:头像 + 姓名 + 等级 + 历史总积分 + 进度 */}
                 <div className="flex items-center gap-4 p-4">
                   <div className="relative shrink-0">
-                    <Avatar avatar={s.avatar} className="h-24 w-24 rounded-2xl bg-gradient-to-b from-brand-50 via-mint-50 to-white ring-1 ring-brand-100" />
+                    <Avatar avatar={s.avatar} className="h-28 w-28 rounded-2xl bg-gradient-to-b from-brand-50 via-mint-50 to-white ring-1 ring-brand-100" />
                     <span className={`absolute -left-1.5 -top-1.5 rounded-xl px-2 py-0.5 text-xs font-extrabold text-white shadow ${prog.isMax ? 'bg-accent-500' : 'bg-brand-500'}`}>
                       Lv.{prog.level}{prog.isMax ? ' ★' : ''}
                     </span>
@@ -99,11 +99,11 @@ export function PublicWall({ data }: { data: WallData }) {
                     <div className="mb-2 text-xs font-bold text-accent-600">🎖 获得的奖章</div>
                     <div className="flex flex-wrap gap-3">
                       {s.medals.map((m, j) => (
-                        <div key={j} title={m.name} className="flex w-16 flex-col items-center gap-1">
-                          <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-white shadow-sm ring-2 ring-accent-200">
-                            {m.image_path ? <img src={m.image_path} alt={m.name} className="h-full w-full object-cover" /> : <span className="text-3xl">{m.icon}</span>}
+                        <div key={j} title={m.name} className="flex w-20 flex-col items-center gap-1">
+                          <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-2xl bg-white shadow-sm ring-2 ring-accent-200">
+                            {m.image_path ? <img src={m.image_path} alt={m.name} className="h-full w-full object-cover" /> : <span className="text-4xl">{m.icon}</span>}
                           </div>
-                          <span className="w-full truncate text-center text-[11px] font-medium text-slate-600">{m.name}</span>
+                          <span className="w-full truncate text-center text-xs font-medium text-slate-600">{m.name}</span>
                         </div>
                       ))}
                     </div>
