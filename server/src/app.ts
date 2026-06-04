@@ -58,7 +58,7 @@ export async function buildApp(deps: {
   const uploadRoot = config.DATA_DIR === ':memory:' ? mkdtempSync(join(tmpdir(), 'classtools-test-')) : config.DATA_DIR;
   mkdirSync(join(uploadRoot, 'uploads'), { recursive: true });
   app.decorate('uploadRoot', uploadRoot);
-  // /uploads 为公开静态目录(宠物图/学生照片);文件名为高熵随机串,
+  // /uploads 为公开静态目录(学生照片等);文件名为高熵随机串,
   // 未授权者无法枚举。公共墙在 public_show_real=0 时不会输出照片路径。
   await app.register(fastifyStatic, {
     root: join(uploadRoot, 'uploads'),

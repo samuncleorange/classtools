@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useLogout } from '../lib/auth';
 import { useCurrentClass } from '../state/CurrentClass';
 import { useStudents } from '../lib/students';
@@ -10,8 +10,6 @@ import { StudentCard } from '../components/StudentCard';
 import { PointsModal } from '../components/PointsModal';
 import { StudentLogsModal } from '../components/StudentLogsModal';
 import { BatchPointsBar } from '../components/BatchPointsBar';
-import { usePetTypes } from '../lib/petTypes';
-import { useAssignPets } from '../lib/avatar';
 import { AvatarPicker } from '../components/AvatarPicker';
 import { RedeemModal } from '../components/RedeemModal';
 import { Toast } from '../components/Toast';
@@ -24,8 +22,6 @@ export function DashboardPage() {
   const { data: students = [] } = useStudents(classId);
   const { data: levels = [] } = useLevels(classId);
   const undo = useUndo(current?.id ?? 0);
-  const { data: pets = [] } = usePetTypes();
-  const assignPets = useAssignPets(current?.id ?? 0);
 
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [pointsFor, setPointsFor] = useState<Student | null>(null);
@@ -45,8 +41,6 @@ export function DashboardPage() {
     setAvatarFor(null);
     setRedeemFor(null);
   }, [current?.id]);
-
-  const now = useMemo(() => new Date(), []);
 
   function toggle(id: number) {
     setSelected((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
@@ -78,11 +72,6 @@ export function DashboardPage() {
               >
                 ↩ 撤销
               </button>
-              <button
-                onClick={() => { if (pets.length === 0) { setToast('请先在「设置 → 宠物」上传宠物'); return; } assignPets.mutate(undefined, { onSuccess: (r) => setToast(`已为 ${r.assigned} 名学生分配宠物`) }); }}
-                disabled={assignPets.isPending}
-                className="rounded-lg border border-slate-200 px-3 py-1.5 font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-50"
-              >🎲 一键分配</button>
             </>
           )}
           <button onClick={() => setSettingsOpen(true)} className="rounded-lg border border-slate-200 px-3 py-1.5 font-medium text-slate-600 hover:bg-slate-50">⚙️ 设置</button>
@@ -113,13 +102,11 @@ export function DashboardPage() {
                   className={`group relative flex flex-col overflow-hidden rounded-3xl text-center shadow-md ring-2 transition ${selected.includes(s.id) ? 'ring-brand-500' : 'ring-transparent hover:ring-brand-200'}`}
                 >
                   <div className="flex h-32 items-center justify-center bg-gradient-to-b from-brand-50 via-mint-50 to-white">
-                    {(() => {
-                      const m = s.avatar_mode ?? current.display_mode;
-                      const p = s.pet_type_id != null ? pets.find((x) => x.id === s.pet_type_id) : undefined;
-                      if (m === 'photo' && s.photo_path) return <img src={s.photo_path} alt={s.name} className="h-full w-full object-cover" />;
-                      if (p) return <img src={p.image_path} alt={s.name} className="h-24 w-24 object-contain" />;
-                      return <span className="text-5xl">🐾</span>;
-                    })()}
+                    {s.photo_path ? (
+                      <img src={s.photo_path} alt={s.name} className="h-full w-full object-cover" />
+                    ) : (
+                      <span className="text-4xl font-bold text-brand-300">{[...s.name][0] ?? '·'}</span>
+                    )}
                   </div>
                   <div className="bg-white p-3">
                     <div className="truncate text-sm font-bold text-slate-700">{s.name}</div>
@@ -135,8 +122,6 @@ export function DashboardPage() {
                   student={s}
                   levels={levels}
                   cls={current}
-                  pets={pets}
-                  now={now}
                   onPoints={setPointsFor}
                   onLogs={setLogsFor}
                   onAvatar={setAvatarFor}
