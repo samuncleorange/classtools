@@ -4,13 +4,12 @@ import { StudentRoster } from './StudentRoster';
 import { GroupManager } from './GroupManager';
 import { PointItemsManager } from './PointItemsManager';
 import { LevelEditor } from './LevelEditor';
-import { PetTypesManager } from './PetTypesManager';
 import { MedalsManager } from './MedalsManager';
 import { useCurrentClass } from '../state/CurrentClass';
 import { useCreateClass, useUpdateClass, useDeleteClass } from '../lib/classes';
 import { useResetWallToken } from '../lib/wall';
 
-type Tab = 'roster' | 'groups' | 'items' | 'levels' | 'pets' | 'medals' | 'class';
+type Tab = 'roster' | 'groups' | 'items' | 'levels' | 'medals' | 'class';
 
 export function SettingsModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { current, classes, setCurrentId } = useCurrentClass();
@@ -41,7 +40,6 @@ export function SettingsModal({ open, onClose }: { open: boolean; onClose: () =>
           ['groups', '分组'],
           ['items', '积分项目'],
           ['levels', '等级'],
-          ['pets', '宠物'],
           ['medals', '奖章'],
           ['class', '班级设置'],
         ] as [Tab, string][]).map(([key, label]) => (
@@ -65,7 +63,6 @@ export function SettingsModal({ open, onClose }: { open: boolean; onClose: () =>
       {tab === 'groups' && current && <GroupManager classId={current.id} />}
       {tab === 'items' && current && <PointItemsManager classId={current.id} />}
       {tab === 'levels' && current && <LevelEditor key={current.id} classId={current.id} />}
-      {tab === 'pets' && <PetTypesManager />}
       {tab === 'medals' && current && <MedalsManager classId={current.id} />}
 
       {tab === 'class' && (
@@ -109,48 +106,6 @@ export function SettingsModal({ open, onClose }: { open: boolean; onClose: () =>
                 </div>
               </div>
 
-              <div>
-                <h3 className="mb-2 text-sm font-semibold text-slate-600">显示模式</h3>
-                <div className="flex gap-2">
-                  {(['pet', 'photo'] as const).map((m) => (
-                    <button
-                      key={m}
-                      onClick={() => updateClass.mutate({ id: current.id, display_mode: m })}
-                      className={`rounded-lg px-4 py-2 text-sm font-medium ${
-                        current.display_mode === m
-                          ? 'bg-brand-500 text-white'
-                          : 'border border-slate-200 text-slate-600 hover:bg-slate-50'
-                      }`}
-                    >
-                      {m === 'pet' ? '🐾 宠物模式' : '📷 照片模式'}
-                    </button>
-                  ))}
-                </div>
-                <p className="mt-1 text-xs text-slate-400">照片模式与宠物模式都保留 Lv.1–9 等级成长。</p>
-              </div>
-
-              <div>
-                <h3 className="mb-2 text-sm font-semibold text-slate-600">宠物生命周期</h3>
-                <label className="flex items-center gap-2 text-sm text-slate-600">
-                  <input
-                    type="checkbox"
-                    checked={current.life_cycle_enabled === 1}
-                    onChange={(e) => updateClass.mutate({ id: current.id, life_cycle_enabled: e.target.checked })}
-                  />
-                  开启(长时间不加分宠物会饥饿/死亡)
-                </label>
-                {current.life_cycle_enabled === 1 && (
-                  <div key={current.id} className="mt-2 flex gap-3 text-xs text-slate-500">
-                    <label className="flex items-center gap-1">饥饿天数
-                      <input type="number" min={1} defaultValue={current.hunger_days} onBlur={(e) => updateClass.mutate({ id: current.id, hunger_days: Number(e.target.value) })} className="w-16 rounded-md border border-slate-200 px-2 py-1" />
-                    </label>
-                    <label className="flex items-center gap-1">死亡天数
-                      <input type="number" min={1} defaultValue={current.death_days} onBlur={(e) => updateClass.mutate({ id: current.id, death_days: Number(e.target.value) })} className="w-16 rounded-md border border-slate-200 px-2 py-1" />
-                    </label>
-                  </div>
-                )}
-              </div>
-
               <div className="border-t border-slate-100 pt-4">
                 <h3 className="mb-2 text-sm font-semibold text-slate-600">公共展示墙</h3>
                 <div className="mb-2 flex items-center gap-2">
@@ -164,7 +119,7 @@ export function SettingsModal({ open, onClose }: { open: boolean; onClose: () =>
                   <button onClick={() => { if (confirm('重置后旧链接立即失效,确定？')) resetToken.mutate(); }} className="rounded-md border border-slate-200 px-2 py-1 text-xs text-slate-500 hover:bg-slate-50">重置</button>
                 </div>
                 <div className="space-y-1 text-sm text-slate-600">
-                  <label className="flex items-center gap-2"><input type="checkbox" checked={current.public_show_real === 1} onChange={(e) => updateClass.mutate({ id: current.id, public_show_real: e.target.checked })} />显示真实姓名与照片(关闭则用昵称/宠物,保护隐私)</label>
+                  <label className="flex items-center gap-2"><input type="checkbox" checked={current.public_show_real === 1} onChange={(e) => updateClass.mutate({ id: current.id, public_show_real: e.target.checked })} />显示真实姓名与照片(关闭则用昵称,保护隐私)</label>
                   <label className="flex items-center gap-2"><input type="checkbox" checked={current.honor_roll_on_wall === 1} onChange={(e) => updateClass.mutate({ id: current.id, honor_roll_on_wall: e.target.checked })} />显示光荣榜</label>
                   <label className="flex items-center gap-2"><input type="checkbox" checked={current.show_medals_on_wall === 1} onChange={(e) => updateClass.mutate({ id: current.id, show_medals_on_wall: e.target.checked })} />在卡片下显示奖章</label>
                 </div>

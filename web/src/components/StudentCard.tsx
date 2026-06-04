@@ -1,15 +1,9 @@
-import type { Student, LevelConfig, Class, PetType } from '../lib/types';
+import type { Student, LevelConfig, Class } from '../lib/types';
 import { levelProgress } from '../lib/levels';
-import { petStatus } from '../lib/avatar';
-
-const STATUS_BADGE: Record<string, string> = { healthy: '', hungry: '😟', dead: '💀' };
 
 export function StudentCard({
   student,
   levels,
-  cls,
-  pets,
-  now,
   onPoints,
   onLogs,
   onAvatar,
@@ -18,42 +12,33 @@ export function StudentCard({
   student: Student;
   levels: LevelConfig[];
   cls: Class;
-  pets: PetType[];
-  now: Date;
   onPoints: (s: Student) => void;
   onLogs: (s: Student) => void;
   onAvatar: (s: Student) => void;
   onRedeem: (s: Student) => void;
 }) {
   const prog = levels.length > 0 ? levelProgress(student.growth_points, levels) : { level: 1, isMax: false, toNext: 0, ratio: 0 };
-  const mode = student.avatar_mode ?? cls.display_mode;
-  const pet = student.pet_type_id != null ? pets.find((p) => p.id === student.pet_type_id) : undefined;
-  const status = petStatus(student.last_award_at, cls.life_cycle_enabled === 1, cls.hunger_days, cls.death_days, now, student.created_at);
-  const dead = status === 'dead';
 
   const actions: [string, (s: Student) => void, string][] = [
-    ['换装', onAvatar, 'text-brand-600'],
+    ['照片', onAvatar, 'text-brand-600'],
     ['记录', onLogs, 'text-slate-600'],
     ['奖章', onRedeem, 'text-accent-600'],
   ];
 
   return (
     <div className="group relative flex flex-col overflow-hidden rounded-3xl bg-white shadow-md ring-1 ring-brand-100/70 transition duration-200 hover:-translate-y-1 hover:shadow-xl">
-      {/* 头像 / 宠物大图区 —— 点击加减分 */}
+      {/* 头像区 —— 点击加减分 */}
       <button
         onClick={() => onPoints(student)}
         className="relative block w-full"
         aria-label={`给 ${student.name} 加减分`}
       >
-        <div className={`relative flex h-44 items-center justify-center bg-gradient-to-b from-brand-50 via-mint-50 to-white ${dead ? 'grayscale' : ''}`}>
-          {mode === 'photo' && student.photo_path ? (
+        <div className="relative flex h-44 items-center justify-center bg-gradient-to-b from-brand-50 via-mint-50 to-white">
+          {student.photo_path ? (
             <img src={student.photo_path} alt={student.name} className="h-full w-full object-cover" />
-          ) : pet ? (
-            <img src={pet.image_path} alt={pet.name} className="h-36 w-36 object-contain drop-shadow-md transition group-hover:scale-105" />
           ) : (
-            <span className="text-7xl">🐾</span>
+            <span className="text-6xl font-bold text-brand-300">{[...student.name][0] ?? '·'}</span>
           )}
-          {STATUS_BADGE[status] && <span className="absolute bottom-2 right-2 text-2xl">{STATUS_BADGE[status]}</span>}
         </div>
         {/* 等级牌 左上 */}
         <span className={`absolute left-3 top-3 rounded-xl px-2.5 py-1 text-sm font-extrabold text-white shadow ${prog.isMax ? 'bg-accent-500' : 'bg-brand-500'}`}>
@@ -80,9 +65,6 @@ export function StudentCard({
       <div className="flex flex-1 flex-col gap-2.5 p-4">
         <div className="flex items-baseline justify-between gap-2">
           <span className="truncate text-lg font-bold text-slate-800">{student.name}</span>
-          {mode === 'pet' && student.pet_name && (
-            <span className="truncate text-sm font-medium text-brand-500">{student.pet_name}</span>
-          )}
         </div>
 
         <div>

@@ -11,13 +11,9 @@ function maskName(name: string): string {
   return first ? `${first}○○` : '同学';
 }
 
-function resolveAvatar(petStmt: Database.Statement, s: StudentRow, cls: ClassRow, showReal: boolean): Avatar {
-  const mode = s.avatar_mode ?? cls.display_mode;
-  if (showReal && mode === 'photo' && s.photo_path) return { kind: 'photo', url: s.photo_path };
-  if (s.pet_type_id != null) {
-    const pet = petStmt.get(s.pet_type_id) as { image_path: string } | undefined;
-    if (pet) return { kind: 'pet', url: pet.image_path };
-  }
+function resolveAvatar(s: StudentRow, showReal: boolean): Avatar {
+  // 仅照片模式:公开真实信息时显示学生照片,否则不输出任何图片(保护隐私)。
+  if (showReal && s.photo_path) return { kind: 'photo', url: s.photo_path };
   return { kind: 'none', url: null };
 }
 
@@ -38,12 +34,11 @@ export function registerWallRoutes(app: FastifyInstance, db: Database.Database):
       `SELECT m.name, m.icon, m.image_path FROM student_medals sm JOIN medals m ON m.id = sm.medal_id WHERE sm.student_id = ? ORDER BY sm.id`,
     );
 
-    const petStmt = db.prepare('SELECT image_path FROM pet_types WHERE id = ?');
     const wallStudents = students.map((s) => ({
       display_name: showReal ? s.name : s.pet_name && s.pet_name.trim() ? s.pet_name : maskName(s.name),
       growth_points: s.growth_points,
       spendable_points: s.spendable_points,
-      avatar: resolveAvatar(petStmt, s, cls, showReal),
+      avatar: resolveAvatar(s, showReal),
       medals: showMedals ? (medalStmt.all(s.id) as { name: string; icon: string; image_path: string | null }[]) : [],
     }));
 
@@ -55,7 +50,7 @@ export function registerWallRoutes(app: FastifyInstance, db: Database.Database):
             rank: i + 1,
             display_name: showReal ? s.name : s.pet_name && s.pet_name.trim() ? s.pet_name : maskName(s.name),
             growth_points: s.growth_points,
-            avatar: resolveAvatar(petStmt, s, cls, showReal),
+            avatar: resolveAvatar(s, showReal),
           }))
       : [];
 

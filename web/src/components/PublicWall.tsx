@@ -1,7 +1,7 @@
 import type { WallData, WallAvatar } from '../lib/types';
 import { levelProgress } from '../lib/levels';
 
-function Avatar({ avatar, className }: { avatar: WallAvatar; className: string }) {
+function Avatar({ avatar, name, className }: { avatar: WallAvatar; name?: string; className: string }) {
   if (avatar.url) {
     const fit = avatar.kind === 'photo' ? 'object-cover h-full w-full' : 'object-contain h-4/5 w-4/5';
     return (
@@ -10,7 +10,11 @@ function Avatar({ avatar, className }: { avatar: WallAvatar; className: string }
       </div>
     );
   }
-  return <div className={`flex items-center justify-center ${className}`}><span className="text-5xl">🐾</span></div>;
+  return (
+    <div className={`flex items-center justify-center ${className}`}>
+      <span className="text-3xl font-bold text-brand-300">{(name ? [...name][0] : '') || '·'}</span>
+    </div>
+  );
 }
 
 export function PublicWall({ data }: { data: WallData }) {
@@ -52,6 +56,7 @@ export function PublicWall({ data }: { data: WallData }) {
                   <div className="mb-1 text-2xl">{p.medal}</div>
                   <Avatar
                     avatar={h.avatar}
+                    name={h.display_name}
                     className={`rounded-full bg-white shadow ring-4 ${p.ring} ${h.rank === 1 ? 'h-24 w-24 sm:h-28 sm:w-28' : 'h-20 w-20'}`}
                   />
                   <div className="mt-2 max-w-[6rem] truncate text-center text-sm font-bold text-slate-700">{h.display_name}</div>
@@ -77,7 +82,7 @@ export function PublicWall({ data }: { data: WallData }) {
                 {/* 顶部:头像 + 姓名 + 等级 + 历史总积分 + 进度 */}
                 <div className="flex items-center gap-4 p-4">
                   <div className="relative shrink-0">
-                    <Avatar avatar={s.avatar} className="h-28 w-28 rounded-2xl bg-gradient-to-b from-brand-50 via-mint-50 to-white ring-1 ring-brand-100" />
+                    <Avatar avatar={s.avatar} name={s.display_name} className="h-28 w-28 rounded-2xl bg-gradient-to-b from-brand-50 via-mint-50 to-white ring-1 ring-brand-100" />
                     <span className={`absolute -left-1.5 -top-1.5 rounded-xl px-2 py-0.5 text-xs font-extrabold text-white shadow ${prog.isMax ? 'bg-accent-500' : 'bg-brand-500'}`}>
                       Lv.{prog.level}{prog.isMax ? ' ★' : ''}
                     </span>
