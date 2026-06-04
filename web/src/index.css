@@ -6,6 +6,18 @@
   color-scheme: light;
 }
 
+@keyframes bg-pan {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
 body {
   @apply text-slate-800 antialiased;
   margin: 0;
@@ -16,4 +28,6 @@ body {
     radial-gradient(900px 600px at 100% 0%, rgba(251, 191, 36, 0.12), transparent 55%),
     linear-gradient(180deg, #f0fdfa 0%, #f8fdff 40%, #ffffff 100%);
   background-attachment: fixed;
+  background-size: 200% 200%;
+  animation: bg-pan 15s ease infinite;
 }

@@ -48,8 +48,10 @@ export function DashboardPage() {
 
   return (
     <div className="mx-auto max-w-7xl p-4 pb-28 sm:p-6">
-      <header className="flex flex-wrap items-center justify-between gap-3 rounded-3xl bg-white/80 px-6 py-4 shadow-md ring-1 ring-brand-100 backdrop-blur">
-        <div className="flex items-center gap-4">
+      <header className="relative flex flex-wrap items-center justify-between gap-3 rounded-3xl bg-white/70 px-6 py-4 shadow-lg shadow-brand-500/5 ring-1 ring-white/60 backdrop-blur-xl overflow-hidden animate-slide-up">
+        {/* 顶部微光效果 */}
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent translate-x-[-100%] animate-[bg-pan_3s_ease-in-out_infinite]"></div>
+        <div className="relative z-10 flex items-center gap-4">
           <h1 className="flex items-center gap-1.5 text-xl font-extrabold">
             <span>⭐</span>
             <span className="bg-gradient-to-r from-brand-600 to-accent-400 bg-clip-text text-transparent">满天星积分榜</span>
@@ -94,41 +96,41 @@ export function DashboardPage() {
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
-            {students.map((s) =>
-              batchMode ? (
-                <button
-                  key={s.id}
-                  onClick={() => toggle(s.id)}
-                  className={`group relative flex flex-col overflow-hidden rounded-3xl text-center shadow-md ring-2 transition ${selected.includes(s.id) ? 'ring-brand-500' : 'ring-transparent hover:ring-brand-200'}`}
-                >
-                  <div className="flex h-32 items-center justify-center bg-gradient-to-b from-brand-50 via-mint-50 to-white">
-                    {s.photo_path ? (
-                      <img src={s.photo_path} alt={s.name} className="h-full w-full object-cover" />
-                    ) : (
-                      <span className="text-4xl font-bold text-brand-300">{[...s.name][0] ?? '·'}</span>
+            {students.map((s, idx) => (
+              <div key={s.id} className="opacity-0 animate-slide-up" style={{ animationDelay: `${idx * 40}ms`, animationFillMode: 'forwards' }}>
+                {batchMode ? (
+                  <button
+                    onClick={() => toggle(s.id)}
+                    className={`group relative flex w-full flex-col overflow-hidden rounded-3xl text-center shadow-md ring-2 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl ${selected.includes(s.id) ? 'ring-brand-500 shadow-brand-500/20' : 'ring-transparent hover:ring-brand-200'}`}
+                  >
+                    <div className="flex h-32 items-center justify-center bg-gradient-to-b from-brand-50 via-mint-50 to-white">
+                      {s.photo_path ? (
+                        <img src={s.photo_path} alt={s.name} className="h-full w-full object-cover" />
+                      ) : (
+                        <span className="text-4xl font-bold text-brand-300">{[...s.name][0] ?? '·'}</span>
+                      )}
+                    </div>
+                    <div className="bg-white p-3">
+                      <div className="truncate text-sm font-bold text-slate-700">{s.name}</div>
+                      <div className="text-xs font-semibold text-accent-600">🍪 {s.spendable_points}</div>
+                    </div>
+                    {selected.includes(s.id) && (
+                      <span className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-brand-500 text-xs font-bold text-white shadow-md animate-scale-in">✓</span>
                     )}
-                  </div>
-                  <div className="bg-white p-3">
-                    <div className="truncate text-sm font-bold text-slate-700">{s.name}</div>
-                    <div className="text-xs font-semibold text-accent-600">🍪 {s.spendable_points}</div>
-                  </div>
-                  {selected.includes(s.id) && (
-                    <span className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-brand-500 text-xs font-bold text-white shadow">✓</span>
-                  )}
-                </button>
-              ) : (
-                <StudentCard
-                  key={s.id}
-                  student={s}
-                  levels={levels}
-                  cls={current}
-                  onPoints={setPointsFor}
-                  onLogs={setLogsFor}
-                  onAvatar={setAvatarFor}
-                  onRedeem={setRedeemFor}
-                />
-              ),
-            )}
+                  </button>
+                ) : (
+                  <StudentCard
+                    student={s}
+                    levels={levels}
+                    cls={current}
+                    onPoints={setPointsFor}
+                    onLogs={setLogsFor}
+                    onAvatar={setAvatarFor}
+                    onRedeem={setRedeemFor}
+                  />
+                )}
+              </div>
+            ))}
           </div>
         )}
       </main>

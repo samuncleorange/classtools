@@ -13,9 +13,9 @@ export function Modal({
 }) {
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4">
-      <div className="max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white shadow-xl">
-        <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 p-4 backdrop-blur-sm animate-fade-in">
+      <div className="max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white/95 backdrop-blur-md shadow-2xl ring-1 ring-white/50 animate-scale-in">
+        <div className="flex items-center justify-between border-b border-slate-100/50 px-6 py-4">
           <h2 className="text-lg font-bold text-brand-600">{title}</h2>
           <button
             onClick={onClose}

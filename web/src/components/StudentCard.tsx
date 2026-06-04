@@ -26,7 +26,7 @@ export function StudentCard({
   ];
 
   return (
-    <div className="group relative flex flex-col overflow-hidden rounded-3xl bg-white shadow-md ring-1 ring-brand-100/70 transition duration-200 hover:-translate-y-1 hover:shadow-xl">
+    <div className="group relative flex flex-col overflow-hidden rounded-3xl bg-white shadow-md ring-1 ring-brand-100/70 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-brand-500/20">
       {/* 头像区 —— 点击加减分 */}
       <button
         onClick={() => onPoints(student)}
@@ -41,19 +41,19 @@ export function StudentCard({
           )}
         </div>
         {/* 等级牌 左上 */}
-        <span className={`absolute left-3 top-3 rounded-xl px-2.5 py-1 text-sm font-extrabold text-white shadow ${prog.isMax ? 'bg-accent-500' : 'bg-brand-500'}`}>
+        <span className={`absolute left-3 top-3 rounded-xl px-2.5 py-1 text-sm font-extrabold text-white shadow-md backdrop-blur transition-transform group-hover:scale-110 ${prog.isMax ? 'bg-accent-500/90' : 'bg-brand-500/90'}`}>
           Lv.{prog.level}
           {prog.isMax ? ' ★' : ''}
         </span>
       </button>
 
       {/* hover 浮现操作药丸 右上 */}
-      <div className="pointer-events-none absolute right-2 top-2 flex gap-1 opacity-0 transition group-hover:pointer-events-auto group-hover:opacity-100">
+      <div className="pointer-events-none absolute right-2 top-2 flex gap-1 opacity-0 transition-all duration-300 translate-y-1 group-hover:pointer-events-auto group-hover:opacity-100 group-hover:translate-y-0">
         {actions.map(([label, fn, color]) => (
           <button
             key={label}
             onClick={() => fn(student)}
-            className={`rounded-full bg-white/95 px-2.5 py-1 text-xs font-medium shadow-sm ring-1 ring-slate-100 hover:bg-white ${color}`}
+            className={`rounded-full bg-white/90 backdrop-blur-md px-2.5 py-1 text-xs font-medium shadow-sm ring-1 ring-slate-100 hover:bg-white hover:scale-105 transition-transform ${color}`}
             aria-label={`${student.name} ${label}`}
           >
             {label}
@@ -74,11 +74,13 @@ export function StudentCard({
               {prog.isMax ? '已满级 ★' : `还需 ${prog.toNext}`}
             </span>
           </div>
-          <div className="h-2.5 w-full overflow-hidden rounded-full bg-slate-100">
+          <div className="h-2.5 w-full overflow-hidden rounded-full bg-slate-100 ring-1 ring-inset ring-slate-200/50">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-brand-400 to-brand-500 transition-all"
+              className="relative h-full rounded-full bg-gradient-to-r from-brand-400 to-brand-500 transition-all duration-700 ease-out"
               style={{ width: `${Math.round(prog.ratio * 100)}%` }}
-            />
+            >
+              <div className="absolute inset-0 bg-white/20 animate-pulse-slow"></div>
+            </div>
           </div>
         </div>
 

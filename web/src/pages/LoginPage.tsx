@@ -15,10 +15,14 @@ export function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-4">
+    <div className="flex min-h-screen items-center justify-center p-4 relative overflow-hidden">
+      {/* 漂浮的背景装饰球 */}
+      <div className="absolute top-1/4 left-1/4 h-64 w-64 rounded-full bg-brand-400/20 blur-[80px] animate-pulse-slow"></div>
+      <div className="absolute bottom-1/4 right-1/4 h-72 w-72 rounded-full bg-accent-400/20 blur-[100px] animate-float"></div>
+
       <form
         onSubmit={onSubmit}
-        className="w-full max-w-sm overflow-hidden rounded-3xl bg-white/90 shadow-xl ring-1 ring-brand-100 backdrop-blur"
+        className="relative z-10 w-full max-w-sm overflow-hidden rounded-3xl bg-white/70 shadow-2xl shadow-brand-500/10 ring-1 ring-white/60 backdrop-blur-xl animate-slide-up"
       >
         {/* 顶部渐变条 */}
         <div className="h-2 w-full bg-gradient-to-r from-brand-400 via-brand-500 to-accent-400" />
@@ -78,7 +82,7 @@ export function LoginPage() {
           <button
             type="submit"
             disabled={login.isPending}
-            className="w-full rounded-xl bg-gradient-to-r from-brand-500 to-brand-600 py-2.5 font-bold text-white shadow-md shadow-brand-200 transition hover:from-brand-600 hover:to-brand-700 disabled:opacity-60"
+            className="w-full rounded-xl bg-gradient-to-r from-brand-500 to-brand-600 py-2.5 font-bold text-white shadow-lg shadow-brand-500/30 transition-all duration-300 hover:scale-[1.02] hover:shadow-brand-500/50 active:scale-95 disabled:opacity-60"
           >
             登录
           </button>
