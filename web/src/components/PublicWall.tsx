@@ -28,7 +28,7 @@ export function PublicWall({ data }: { data: WallData }) {
 
   return (
     <div className="mx-auto max-w-7xl p-4 sm:p-6">
-      <div className="relative mb-8 text-center">
+      <div className="relative mb-8 text-center animate-slide-up">
         <h1 className="bg-gradient-to-r from-brand-600 to-accent-400 bg-clip-text text-4xl font-extrabold text-transparent drop-shadow-sm">
           {cls.name}
         </h1>
@@ -46,7 +46,7 @@ export function PublicWall({ data }: { data: WallData }) {
       </div>
 
       {cls.honor_roll_on_wall && honor_roll.length > 0 && (
-        <div className="mb-10 rounded-[2rem] bg-gradient-to-br from-accent-50 via-white to-brand-50 p-6 shadow-md ring-1 ring-accent-100 sm:p-8">
+        <div className="mb-10 rounded-[2rem] bg-gradient-to-br from-accent-50/80 via-white/80 to-brand-50/80 p-6 shadow-xl shadow-accent-500/10 ring-1 ring-white/60 backdrop-blur-xl sm:p-8 animate-slide-up" style={{ animationDelay: '100ms', animationFillMode: 'forwards' }}>
           <h2 className="mb-6 text-center text-xl font-extrabold text-accent-600">🏆 光荣榜</h2>
           <div className="flex items-end justify-center gap-3 sm:gap-8">
             {honor_roll.map((h) => {
@@ -57,7 +57,7 @@ export function PublicWall({ data }: { data: WallData }) {
                   <Avatar
                     avatar={h.avatar}
                     name={h.display_name}
-                    className={`rounded-full bg-white shadow ring-4 ${p.ring} ${h.rank === 1 ? 'h-24 w-24 sm:h-28 sm:w-28' : 'h-20 w-20'}`}
+                    className={`rounded-full bg-white shadow-lg ring-4 ${p.ring} ${h.rank === 1 ? 'h-24 w-24 sm:h-28 sm:w-28' : 'h-20 w-20'} transition-transform duration-300 hover:scale-110`}
                   />
                   <div className="mt-2 max-w-[6rem] truncate text-center text-sm font-bold text-slate-700">{h.display_name}</div>
                   <div className="text-xs font-semibold text-accent-600">{h.growth_points} 分</div>
@@ -78,7 +78,7 @@ export function PublicWall({ data }: { data: WallData }) {
           .map((s, i) => {
             const prog = lv.length > 0 ? levelProgress(s.growth_points, lv) : { level: 1, isMax: false, toNext: 0, ratio: 0 };
             return (
-              <div key={i} className="flex flex-col overflow-hidden rounded-3xl bg-white shadow-xl shadow-slate-300/50 ring-1 ring-slate-200/80">
+              <div key={i} className="flex flex-col overflow-hidden rounded-3xl bg-white/80 backdrop-blur-lg shadow-xl shadow-slate-300/30 ring-1 ring-white/60 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-brand-500/20 opacity-0 animate-slide-up" style={{ animationDelay: `${i * 100 + 200}ms`, animationFillMode: 'forwards' }}>
                 {/* 顶部:头像 + 姓名 + 等级 + 历史总积分 + 进度 */}
                 <div className="flex items-center gap-4 p-4">
                   <div className="relative shrink-0">
@@ -93,8 +93,10 @@ export function PublicWall({ data }: { data: WallData }) {
                       <span className="text-2xl font-extrabold text-brand-600">{s.growth_points}</span>
                       <span className="text-xs font-medium text-slate-400">历史总积分</span>
                     </div>
-                    <div className="h-2.5 w-full overflow-hidden rounded-full bg-slate-100">
-                      <div className="h-full rounded-full bg-gradient-to-r from-brand-400 to-brand-500" style={{ width: `${Math.round(prog.ratio * 100)}%` }} />
+                    <div className="h-2.5 w-full overflow-hidden rounded-full bg-slate-100 ring-1 ring-inset ring-slate-200/50">
+                      <div className="relative h-full rounded-full bg-gradient-to-r from-brand-400 to-brand-500 transition-all duration-700 ease-out" style={{ width: `${Math.round(prog.ratio * 100)}%` }}>
+                        <div className="absolute inset-0 bg-white/20 animate-pulse-slow"></div>
+                      </div>
                     </div>
                   </div>
                 </div>
