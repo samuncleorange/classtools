@@ -10,6 +10,7 @@ export interface Class {
   public_show_real: 0 | 1;
   honor_roll_on_wall: 0 | 1;
   show_medals_on_wall: 0 | 1;
+  journal_token: string;
 }
 
 export interface Group {
@@ -83,6 +84,21 @@ export interface WallData {
   students: WallStudent[];
   honor_roll: { rank:number; display_name:string; growth_points:number; avatar:WallAvatar }[];
 }
+
+export interface JournalEntry {
+  id: number;
+  class_id: number;
+  title: string;
+  entry_date: string;
+  note: string;
+  image_path: string | null;
+  star_color: string | null;
+  star_size: number | null;
+  sort_order: number;
+  created_at: string;
+}
+export interface JournalPublicEntry { id:number; title:string; entry_date:string; note:string; image_path:string|null; star_color:string|null; star_size:number|null; sort_order:number }
+export interface JournalPublicData { class_name: string; entries: JournalPublicEntry[] }
 
 export interface ParentLog { delta_growth:number; delta_spendable:number; reason:string; growth_after:number; spendable_after:number; created_at:string }
 export interface ParentData {

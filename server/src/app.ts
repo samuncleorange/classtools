@@ -20,6 +20,7 @@ import { registerMedalRoutes } from './medals/medals-routes.js';
 import { registerRedeemRoutes } from './medals/redeem-routes.js';
 import { registerWallRoutes } from './wall/wall-routes.js';
 import { registerParentRoutes } from './parent/parent-routes.js';
+import { registerJournalRoutes } from './journal/journal-routes.js';
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -91,6 +92,7 @@ export async function buildApp(deps: {
   registerRedeemRoutes(app, db);
   registerWallRoutes(app, db);
   registerParentRoutes(app, db);
+  registerJournalRoutes(app, db);
 
   // 生产环境：托管打包后的前端，并对非 /api 路由回退到 index.html（SPA）
   if (config.NODE_ENV === 'production') {

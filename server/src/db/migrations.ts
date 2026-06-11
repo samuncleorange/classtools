@@ -143,6 +143,30 @@ export const migrations: Migration[] = [
       CREATE UNIQUE INDEX idx_students_parent_token ON students(parent_token);
     `,
   },
+  {
+    // 满天星手帐:每班一本手帐(journal_entries),并给班级加独立的公开分享
+    // token(journal_token,与 wall_token 分开,可独立分享/作废)。存量班级
+    // randomblob 回填,新班由 generateToken() 写入(见 classes/routes.ts)。
+    id: '007_starry_journal',
+    sql: `
+      CREATE TABLE journal_entries (
+        id         INTEGER PRIMARY KEY AUTOINCREMENT,
+        class_id   INTEGER NOT NULL REFERENCES classes(id) ON DELETE CASCADE,
+        title      TEXT NOT NULL,
+        entry_date TEXT NOT NULL,
+        note       TEXT NOT NULL DEFAULT '',
+        image_path TEXT,
+        star_color TEXT,
+        star_size  INTEGER,
+        sort_order INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL
+      );
+      CREATE INDEX idx_journal_class ON journal_entries(class_id);
+      ALTER TABLE classes ADD COLUMN journal_token TEXT;
+      UPDATE classes SET journal_token = lower(hex(randomblob(16))) WHERE journal_token IS NULL;
+      CREATE UNIQUE INDEX idx_classes_journal_token ON classes(journal_token);
+    `,
+  },
 ];
 
 export function runMigrations(db: Database.Database): void {

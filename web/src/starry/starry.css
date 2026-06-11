@@ -1,0 +1,71 @@
+/* 满天星手帐:星空页专用动效 */
+
+/* 主标题:缓慢淡入 + 轻微上浮 */
+@keyframes starry-title-in {
+  0% { opacity: 0; transform: translateY(14px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.starry-title {
+  font-family: 'Optima', 'Avenir Next', 'STSong', 'Songti SC', 'Noto Serif SC', 'PingFang SC', serif;
+  letter-spacing: 0.28em;
+  text-indent: 0.28em; /* 抵消末字字距,保持视觉居中 */
+  font-weight: 300;
+  color: rgba(238, 243, 255, 0.96);
+  text-shadow: 0 0 28px rgba(160, 190, 255, 0.5), 0 0 6px rgba(220, 230, 255, 0.35);
+  animation: starry-title-in 1.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+}
+.starry-subtitle {
+  letter-spacing: 0.18em;
+  text-indent: 0.18em;
+  animation: starry-title-in 1.8s cubic-bezier(0.16, 1, 0.3, 1) 0.8s both;
+}
+
+/* 详情浮层:遮罩淡入淡出 */
+@keyframes starry-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes starry-fade-out { from { opacity: 1; } to { opacity: 0; } }
+.starry-fade-in { animation: starry-fade-in 0.35s ease-out both; }
+.starry-fade-out { animation: starry-fade-out 0.3s ease-in both; }
+
+/* 卡片:从被点击星星的位置"光点绽放"放大进场,收拢回星点退场 */
+@keyframes starry-card-in {
+  0% { opacity: 0; transform: translate(var(--ox, 0px), var(--oy, 0px)) scale(0.06); filter: brightness(3); }
+  60% { filter: brightness(1.15); }
+  100% { opacity: 1; transform: translate(0, 0) scale(1); filter: brightness(1); }
+}
+@keyframes starry-card-out {
+  0% { opacity: 1; transform: translate(0, 0) scale(1); }
+  100% { opacity: 0; transform: translate(var(--ox, 0px), var(--oy, 0px)) scale(0.06); filter: brightness(2.5); }
+}
+.starry-card-in { animation: starry-card-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.starry-card-out { animation: starry-card-out 0.32s cubic-bezier(0.6, 0, 0.85, 0.3) both; }
+
+/* 卡片四周漂浮的微光颗粒 */
+@keyframes starry-mote {
+  0%, 100% { transform: translateY(0) scale(1); opacity: 0.5; }
+  50% { transform: translateY(-14px) scale(1.25); opacity: 0.95; }
+}
+.starry-mote {
+  position: absolute;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(255, 244, 214, 0.95), rgba(255, 244, 214, 0));
+  pointer-events: none;
+  animation: starry-mote 5s ease-in-out infinite;
+}
+
+/* 加载动画:零星光点由暗渐亮 */
+@keyframes starry-loading-dot {
+  0%, 100% { opacity: 0.15; transform: scale(0.7); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+.starry-loading-dot {
+  border-radius: 9999px;
+  background: radial-gradient(circle, #fff, rgba(255, 255, 255, 0));
+  animation: starry-loading-dot 1.6s ease-in-out infinite;
+}
+
+/* 音乐按钮的柔和呼吸 */
+@keyframes starry-breathe {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(160, 190, 255, 0.35); }
+  50% { box-shadow: 0 0 0 10px rgba(160, 190, 255, 0); }
+}
+.starry-breathe { animation: starry-breathe 3.2s ease-in-out infinite; }

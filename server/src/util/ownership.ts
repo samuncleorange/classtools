@@ -13,6 +13,7 @@ export interface ClassRow {
   public_show_real: number;
   honor_roll_on_wall: number;
   show_medals_on_wall: number;
+  journal_token: string;
 }
 
 export interface StudentRow {
