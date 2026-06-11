@@ -3,6 +3,7 @@ import { LoginPage } from './pages/LoginPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { Protected } from './components/Protected';
 import { WallPage } from './pages/WallPage';
+import { ParentPage } from './pages/ParentPage';
 
 export function App() {
   return (
@@ -10,6 +11,7 @@ export function App() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/wall/:token" element={<WallPage />} />
+        <Route path="/parent/:token" element={<ParentPage />} />
         <Route
           path="/"
           element={

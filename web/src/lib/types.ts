@@ -32,6 +32,7 @@ export interface Student {
   pet_name: string | null;
   photo_path: string | null;
   last_award_at: string | null;
+  parent_token: string;
 }
 
 export interface PointItem {
@@ -81,4 +82,15 @@ export interface WallData {
   levels: { level:number; required_points:number }[];
   students: WallStudent[];
   honor_roll: { rank:number; display_name:string; growth_points:number; avatar:WallAvatar }[];
+}
+
+export interface ParentLog { delta_growth:number; delta_spendable:number; reason:string; growth_after:number; spendable_after:number; created_at:string }
+export interface ParentData {
+  class_name: string;
+  student: { name:string; photo_path:string|null; growth_points:number; spendable_points:number };
+  levels: { level:number; required_points:number }[];
+  medals: { name:string; icon:string; image_path:string|null }[];
+  today: string;
+  today_logs: ParentLog[];
+  today_summary: { growth:number; spendable:number; count:number };
 }

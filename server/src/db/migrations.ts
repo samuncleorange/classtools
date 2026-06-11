@@ -133,6 +133,16 @@ export const migrations: Migration[] = [
       ALTER TABLE classes ADD COLUMN show_medals_on_wall INTEGER NOT NULL DEFAULT 1;
     `,
   },
+  {
+    // 父母端:每个学生一个公开随机 token。存量学生用 randomblob 回填高熵 token,
+    // 新学生在插入时由 generateToken() 写入(见 students/routes.ts)。
+    id: '006_parent_token',
+    sql: `
+      ALTER TABLE students ADD COLUMN parent_token TEXT;
+      UPDATE students SET parent_token = lower(hex(randomblob(16))) WHERE parent_token IS NULL;
+      CREATE UNIQUE INDEX idx_students_parent_token ON students(parent_token);
+    `,
+  },
 ];
 
 export function runMigrations(db: Database.Database): void {

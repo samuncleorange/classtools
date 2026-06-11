@@ -110,6 +110,16 @@ export function StudentRoster({ classId }: { classId: number }) {
             </select>
             <button
               onClick={() => {
+                const url = `${window.location.origin}/parent/${s.parent_token}`;
+                navigator.clipboard?.writeText(url);
+                alert(`已复制「${s.name}」的家长链接:\n${url}`);
+              }}
+              className="text-xs text-brand-600 hover:text-brand-700"
+            >
+              家长链接
+            </button>
+            <button
+              onClick={() => {
                 if (confirm(`确定将「${s.name}」的积分清零？此操作不可撤销。`)) resetPoints.mutate(s.id);
               }}
               className="text-xs text-accent-600 hover:text-accent-700"

@@ -3,6 +3,7 @@ import type Database from 'better-sqlite3';
 import { z } from 'zod';
 import { getOwnedClass, getOwnedStudent, getStudentById, type StudentRow } from '../util/ownership.js';
 import { intParam } from '../util/params.js';
+import { generateToken } from '../util/token.js';
 
 const nameBody = z.object({ name: z.string().trim().min(1) });
 const batchBody = z.object({ names: z.array(z.string()) });
@@ -33,8 +34,8 @@ export function registerStudentRoutes(app: FastifyInstance, db: Database.Databas
     if (!parsed.success) return reply.code(400).send({ error: 'bad_request' });
     if (!getOwnedClass(db, classId, req.teacherId)) return reply.code(404).send({ error: 'not_found' });
     const info = db
-      .prepare('INSERT INTO students (class_id, name, growth_points, spendable_points, created_at) VALUES (?,?,0,0,?)')
-      .run(classId, parsed.data.name, new Date().toISOString());
+      .prepare('INSERT INTO students (class_id, name, growth_points, spendable_points, created_at, parent_token) VALUES (?,?,0,0,?,?)')
+      .run(classId, parsed.data.name, new Date().toISOString(), generateToken());
     return getStudentById(db, Number(info.lastInsertRowid));
   });
 
@@ -46,10 +47,10 @@ export function registerStudentRoutes(app: FastifyInstance, db: Database.Databas
     if (!getOwnedClass(db, classId, req.teacherId)) return reply.code(404).send({ error: 'not_found' });
     const names = parsed.data.names.map((n) => n.trim()).filter((n) => n.length > 0);
     const now = new Date().toISOString();
-    const insert = db.prepare('INSERT INTO students (class_id, name, growth_points, spendable_points, created_at) VALUES (?,?,0,0,?)');
+    const insert = db.prepare('INSERT INTO students (class_id, name, growth_points, spendable_points, created_at, parent_token) VALUES (?,?,0,0,?,?)');
     const ids: number[] = [];
     const tx = db.transaction(() => {
-      for (const n of names) ids.push(Number(insert.run(classId, n, now).lastInsertRowid));
+      for (const n of names) ids.push(Number(insert.run(classId, n, now, generateToken()).lastInsertRowid));
     });
     tx();
     return ids.map((id) => getStudentById(db, id));
