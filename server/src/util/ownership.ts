@@ -28,6 +28,7 @@ export interface StudentRow {
   pet_name: string | null;
   photo_path: string | null;
   last_award_at: string | null;
+  parent_token: string;
 }
 
 export interface GroupRow {

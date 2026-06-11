@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { PointsModal } from '../components/PointsModal';
 import type { Student } from '../lib/types';
 
-const student: Student = { id: 1, class_id: 1, name: '小明', group_id: null, growth_points: 0, spendable_points: 0, created_at: '', avatar_mode: null, pet_type_id: null, pet_name: null, photo_path: null, last_award_at: null };
+const student: Student = { id: 1, class_id: 1, name: '小明', group_id: null, growth_points: 0, spendable_points: 0, created_at: '', avatar_mode: null, pet_type_id: null, pet_name: null, photo_path: null, last_award_at: null, parent_token: 'tok1' };
 
 beforeEach(() => {
   vi.stubGlobal('fetch', vi.fn(async (url: string) => {

@@ -15,7 +15,7 @@ describe('migrations', () => {
     const db = createDb(':memory:');
     expect(() => runMigrations(db)).not.toThrow();
     const applied = db.prepare('SELECT COUNT(*) AS c FROM _migrations').get() as { c: number };
-    expect(applied.c).toBe(5);
+    expect(applied.c).toBe(6);
   });
 
   it('002 创建 classes/groups/students 表', () => {
@@ -50,6 +50,12 @@ describe('migrations', () => {
     expect(names).toEqual(['medals', 'student_medals']);
     const ccols = (db.prepare('PRAGMA table_info(classes)').all() as { name: string }[]).map((c) => c.name);
     expect(ccols).toEqual(expect.arrayContaining(['public_show_real', 'honor_roll_on_wall', 'show_medals_on_wall']));
+  });
+
+  it('006 为 students 增 parent_token 列', () => {
+    const db = createDb(':memory:');
+    const scols = (db.prepare('PRAGMA table_info(students)').all() as { name: string }[]).map((c) => c.name);
+    expect(scols).toContain('parent_token');
   });
 
   it('删除班级级联删除其学生与分组', () => {
