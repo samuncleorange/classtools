@@ -29,12 +29,13 @@ export function ParentView({ data }: { data: ParentData }) {
   const prog = lv.length > 0 ? levelProgress(student.growth_points, lv) : { level: 1, isMax: false, toNext: 0, ratio: 0 };
 
   return (
-    <div className="mx-auto max-w-xl p-4 sm:p-6">
+    <div className="mx-auto max-w-6xl p-4 sm:p-6">
       <div className="mb-5 text-center">
         <p className="text-sm text-slate-400">⭐ 满天星积分榜 · 家长查看</p>
         <h1 className="mt-0.5 text-sm font-medium text-slate-500">{class_name}</h1>
       </div>
 
+      <div className="grid gap-5 lg:grid-cols-[minmax(320px,380px)_1fr] lg:items-start">
       {/* 学生信息卡 */}
       <div className="overflow-hidden rounded-3xl bg-white shadow-xl shadow-slate-300/50 ring-1 ring-slate-200/80">
         <div className="flex items-center gap-4 p-5">
@@ -84,7 +85,7 @@ export function ParentView({ data }: { data: ParentData }) {
       </div>
 
       {/* 今日得分 */}
-      <div className="mt-5 overflow-hidden rounded-3xl bg-white shadow-xl shadow-slate-300/50 ring-1 ring-slate-200/80">
+      <div className="overflow-hidden rounded-3xl bg-white shadow-xl shadow-slate-300/50 ring-1 ring-slate-200/80">
         <div className="flex items-center justify-between border-b border-slate-100 px-5 py-3">
           <h2 className="text-base font-bold text-slate-700">今日得分</h2>
           <span className="text-xs text-slate-400">{data.today}</span>
@@ -111,6 +112,7 @@ export function ParentView({ data }: { data: ParentData }) {
             </ul>
           </>
         )}
+      </div>
       </div>
 
       <p className="mt-6 text-center text-xs text-slate-300">本页面为只读家长端,内容由老师维护</p>
