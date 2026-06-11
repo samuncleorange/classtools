@@ -29,9 +29,9 @@ export function registerClassRoutes(app: FastifyInstance, db: Database.Database)
     if (!parsed.success) return reply.code(400).send({ error: 'bad_request' });
     const info = db
       .prepare(
-        'INSERT INTO classes (teacher_id, name, display_mode, wall_token, created_at) VALUES (?,?,?,?,?)',
+        'INSERT INTO classes (teacher_id, name, display_mode, wall_token, journal_token, created_at) VALUES (?,?,?,?,?,?)',
       )
-      .run(req.teacherId, parsed.data.name, 'pet', generateToken(), new Date().toISOString());
+      .run(req.teacherId, parsed.data.name, 'pet', generateToken(), generateToken(), new Date().toISOString());
     return db.prepare('SELECT * FROM classes WHERE id = ?').get(Number(info.lastInsertRowid));
   });
 

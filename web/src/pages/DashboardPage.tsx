@@ -12,6 +12,7 @@ import { StudentLogsModal } from '../components/StudentLogsModal';
 import { BatchPointsBar } from '../components/BatchPointsBar';
 import { AvatarPicker } from '../components/AvatarPicker';
 import { RedeemModal } from '../components/RedeemModal';
+import { JournalManager } from '../components/JournalManager';
 import { Toast } from '../components/Toast';
 import type { Student } from '../lib/types';
 
@@ -24,6 +25,7 @@ export function DashboardPage() {
   const undo = useUndo(current?.id ?? 0);
 
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [journalOpen, setJournalOpen] = useState(false);
   const [pointsFor, setPointsFor] = useState<Student | null>(null);
   const [logsFor, setLogsFor] = useState<Student | null>(null);
   const [batchMode, setBatchMode] = useState(false);
@@ -75,6 +77,12 @@ export function DashboardPage() {
                 ↩ 撤销
               </button>
             </>
+          )}
+          {current && (
+            <button
+              onClick={() => setJournalOpen(true)}
+              className="rounded-lg bg-gradient-to-r from-[#0d1b3a] to-[#1b2a5b] px-3 py-1.5 font-medium text-indigo-100 shadow-sm transition hover:shadow-md hover:shadow-indigo-900/20"
+            >✨ 满天星手帐</button>
           )}
           <button onClick={() => setSettingsOpen(true)} className="rounded-lg border border-slate-200 px-3 py-1.5 font-medium text-slate-600 hover:bg-slate-50">⚙️ 设置</button>
           <button onClick={() => logout.mutate()} disabled={logout.isPending} className="rounded-lg bg-accent-400 px-3 py-1.5 font-medium text-white hover:bg-accent-500 disabled:opacity-60">退出</button>
@@ -136,6 +144,7 @@ export function DashboardPage() {
       </main>
 
       <SettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} />
+      {current && <JournalManager open={journalOpen} cls={current} onClose={() => setJournalOpen(false)} />}
       {pointsFor && current && (() => {
         const live = students.find((s) => s.id === pointsFor.id) ?? pointsFor;
         return <PointsModal classId={current.id} student={live} onClose={() => setPointsFor(null)} />;
