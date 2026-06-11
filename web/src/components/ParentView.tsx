@@ -67,15 +67,15 @@ export function ParentView({ data }: { data: ParentData }) {
 
         {/* 奖章 */}
         {medals.length > 0 && (
-          <div className="border-t border-brand-50 bg-gradient-to-b from-accent-50/40 to-white px-5 py-3">
-            <div className="mb-2 text-xs font-bold text-accent-600">🎖 获得的奖章</div>
-            <div className="flex flex-wrap gap-3">
+          <div className="border-t border-brand-50 bg-gradient-to-b from-accent-50/40 to-white px-5 py-4">
+            <div className="mb-3 text-sm font-bold text-accent-600">🎖 获得的奖章</div>
+            <div className="flex flex-wrap gap-4">
               {medals.map((m, j) => (
-                <div key={j} title={m.name} className="flex w-16 flex-col items-center gap-1">
-                  <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl bg-white shadow-sm ring-2 ring-accent-200">
-                    {m.image_path ? <img src={m.image_path} alt={m.name} className="h-full w-full object-cover" /> : <span className="text-3xl">{m.icon}</span>}
+                <div key={j} title={m.name} className="flex w-24 flex-col items-center gap-1.5">
+                  <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-3xl bg-white shadow-md ring-2 ring-accent-200">
+                    {m.image_path ? <img src={m.image_path} alt={m.name} className="h-full w-full object-cover" /> : <span className="text-5xl">{m.icon}</span>}
                   </div>
-                  <span className="w-full truncate text-center text-[11px] font-medium text-slate-600">{m.name}</span>
+                  <span className="w-full truncate text-center text-sm font-medium text-slate-600">{m.name}</span>
                 </div>
               ))}
             </div>
