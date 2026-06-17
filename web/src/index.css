@@ -22,12 +22,10 @@ body {
   @apply text-slate-800 antialiased;
   margin: 0;
   min-height: 100vh;
-  /* 薄荷晴空:左上青、右上暖琥珀、整体柔和渐变 */
-  background:
-    radial-gradient(1100px 700px at 12% -8%, rgba(34, 211, 238, 0.16), transparent 60%),
-    radial-gradient(900px 600px at 100% 0%, rgba(251, 191, 36, 0.12), transparent 55%),
-    linear-gradient(180deg, #f0fdfa 0%, #f8fdff 40%, #ffffff 100%);
+  /* 深邃治愈系油画星空 */
+  background-image: url('/starry-night-bg.png');
+  background-position: 0% 50%;
   background-attachment: fixed;
-  background-size: 200% 200%;
-  animation: bg-pan 15s ease infinite;
+  background-size: 110% 110%;
+  animation: bg-pan 25s ease-in-out infinite;
 }
