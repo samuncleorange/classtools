@@ -19,7 +19,7 @@ export function App() {
         <Route
           path="/starry/:token"
           element={
-            <Suspense fallback={<div className="fixed inset-0 bg-[#070b1a]" />}>
+            <Suspense fallback={<div className="fixed inset-0 bg-[#0b1b5a]" />}>
               <StarryPage />
             </Suspense>
           }
