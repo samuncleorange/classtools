@@ -2,10 +2,10 @@ import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { useFrame, useThree, type ThreeEvent } from '@react-three/fiber';
 import type { JournalPublicEntry } from '../lib/types';
-import { makeHaloTexture, makeTrailTexture, seededRandom } from './textures';
+import { makeHaloTexture, makeStarTexture, makeTrailTexture, seededRandom } from './textures';
 
-/** 主星默认色盘:淡金 / 冰蓝 / 藕粉 / 薄荷绿(低饱和、雅致) */
-const PALETTE = ['#f5d488', '#9ad7f5', '#f3b8c9', '#a8e6cf'];
+/** 主星默认色盘:暖金主导,辅以杏金 / 蜜金 / 一抹冰蓝点缀(明亮治愈) */
+const PALETTE = ['#ffd45e', '#ffc24d', '#ffe08a', '#8fe0ff'];
 
 export interface HoverInfo {
   title: string;
@@ -125,18 +125,22 @@ const SKY_FRAG = /* glsl */ `
 
   void main() {
     float h = clamp(vDir.y * 0.5 + 0.5, 0.0, 1.0); // 0=地平线下 1=天顶
-    vec3 top = vec3(0.027, 0.043, 0.102);   // #070b1a 午夜蓝
-    vec3 mid = vec3(0.051, 0.106, 0.227);   // #0d1b3a 深靛蓝
-    vec3 low = vec3(0.106, 0.165, 0.357);   // #1b2a5b 青紫薄雾
-    vec3 col = mix(low, mid, smoothstep(0.0, 0.42, h));
-    col = mix(col, top, smoothstep(0.42, 1.0, h));
-    // 星云:两层缓慢漂移的 fbm,洋红与青蓝各一层
+    // 治愈系油画蓝:天顶深宝蓝,越靠近地平线越亮、越偏青绿
+    vec3 top = vec3(0.043, 0.106, 0.353);   // #0b1b5a 深宝蓝(仍清亮,不死黑)
+    vec3 mid = vec3(0.075, 0.231, 0.553);   // #133b8d 明亮群青
+    vec3 low = vec3(0.106, 0.380, 0.612);   // #1b619c 海蓝
+    vec3 col = mix(low, mid, smoothstep(0.0, 0.46, h));
+    col = mix(col, top, smoothstep(0.46, 1.0, h));
+    // 地平线一圈发光的青绿色光带(参考图里海面的那抹通透青绿)
+    float band = exp(-pow((h - 0.44) / 0.14, 2.0));
+    col += vec3(0.10, 0.46, 0.50) * band * 0.55;
+    // 星云:暖金 + 青绿两层缓慢漂移的 fbm,明亮梦幻
     float n1 = fbm(vDir * 2.6 + vec3(uTime * 0.004, 0.0, uTime * 0.003));
     float n2 = fbm(vDir * 1.8 + vec3(7.3, uTime * 0.005, 2.1));
-    col += vec3(0.42, 0.18, 0.46) * smoothstep(0.55, 0.85, n1) * 0.085; // 洋红晕
-    col += vec3(0.16, 0.34, 0.55) * smoothstep(0.52, 0.82, n2) * 0.11;  // 青蓝晕
-    // 地平线一抹极淡的暖光,避免死黑
-    col += vec3(0.10, 0.09, 0.16) * smoothstep(0.25, 0.0, h);
+    col += vec3(0.62, 0.46, 0.18) * smoothstep(0.48, 0.84, n1) * 0.20; // 暖金晕
+    col += vec3(0.12, 0.46, 0.52) * smoothstep(0.50, 0.82, n2) * 0.18; // 青绿晕
+    // 整体托底提亮,避免任何方向发暗
+    col += vec3(0.03, 0.06, 0.12);
     gl_FragColor = vec4(col, 1.0);
   }
 `;
@@ -165,30 +169,49 @@ const STARS_VERT = /* glsl */ `
   varying float vPhase;
   varying float vSpeed;
   varying vec3 vTint;
+  varying float vBright;
   void main() {
     vPhase = aPhase;
     vSpeed = aSpeed;
     vTint = aTint;
+    vBright = clamp((aSize - 1.5) / 5.0, 0.0, 1.0); // 越大的星越亮、星芒越明显
     vec4 mv = modelViewMatrix * vec4(position, 1.0);
-    gl_PointSize = aSize * (380.0 / -mv.z);
+    gl_PointSize = aSize * (400.0 / -mv.z);
     gl_Position = projectionMatrix * mv;
   }
 `;
 
+// 圆形亮核 + 随亮度增强的十字星芒,营造闪烁感(治愈系亮星空)
 const STARS_FRAG = /* glsl */ `
   uniform float uTime;
   varying float vPhase;
   varying float vSpeed;
   varying vec3 vTint;
+  varying float vBright;
   void main() {
-    float d = length(gl_PointCoord - 0.5);
-    float alpha = smoothstep(0.5, 0.04, d);
+    vec2 uv = gl_PointCoord - 0.5;
+    float d = length(uv);
+    float core = smoothstep(0.5, 0.0, d);
+    // 四角星芒:沿水平/竖直方向拉长的细亮线
+    float gx = smoothstep(0.5, 0.0, abs(uv.x) * 7.0 + abs(uv.y) * 0.7);
+    float gy = smoothstep(0.5, 0.0, abs(uv.y) * 7.0 + abs(uv.x) * 0.7);
+    float spark = max(gx, gy) * vBright * 0.8;
+    float shape = max(core, spark);
     float tw = 0.5 + 0.5 * sin(uTime * vSpeed + vPhase); // 各自独立的缓慢闪烁
-    gl_FragColor = vec4(vTint, alpha * (0.25 + 0.75 * tw));
+    gl_FragColor = vec4(vTint, shape * (0.45 + 0.55 * tw));
   }
 `;
 
-function BackgroundStars({ count = 3200 }: { count?: number }) {
+// 加权挑色:金色主导,辅以暖白、淡金,少量青绿点缀(呼应参考图)
+function pickStarTint(rand: () => number): [number, number, number] {
+  const r = rand();
+  if (r < 0.5) return [1.0, 0.82, 0.42]; // 暖金(过半)
+  if (r < 0.74) return [1.0, 0.91, 0.66]; // 淡金
+  if (r < 0.9) return [1.0, 0.98, 0.9]; // 暖白
+  return [0.6, 0.88, 0.96]; // 青绿点缀
+}
+
+function BackgroundStars({ count = 4200 }: { count?: number }) {
   const mat = useRef<THREE.ShaderMaterial>(null);
   const uniforms = useMemo(() => ({ uTime: { value: 0 } }), []);
   const { positions, sizes, phases, speeds, tints } = useMemo(() => {
@@ -198,12 +221,6 @@ function BackgroundStars({ count = 3200 }: { count?: number }) {
     const phases = new Float32Array(count);
     const speeds = new Float32Array(count);
     const tints = new Float32Array(count * 3);
-    const tintChoices = [
-      [0.83, 0.87, 1.0], // 冷白
-      [1.0, 0.93, 0.78], // 暖金
-      [0.72, 0.84, 1.0], // 淡蓝
-      [0.95, 0.88, 0.95], // 藕紫
-    ];
     for (let i = 0; i < count; i++) {
       // 均匀散布在球壳上,半径有层次纵深
       const u = rand() * 2 - 1;
@@ -213,11 +230,11 @@ function BackgroundStars({ count = 3200 }: { count?: number }) {
       positions[i * 3] = s * Math.cos(t) * r;
       positions[i * 3 + 1] = u * r;
       positions[i * 3 + 2] = s * Math.sin(t) * r;
-      // 大小:多数细小,少数稍亮
-      sizes[i] = rand() < 0.85 ? 1.2 + rand() * 2.2 : 3.5 + rand() * 3.0;
+      // 大小:多数细小,少数明亮(带星芒)
+      sizes[i] = rand() < 0.82 ? 1.4 + rand() * 2.4 : 4.0 + rand() * 3.4;
       phases[i] = rand() * Math.PI * 2;
-      speeds[i] = 0.15 + rand() * 0.6; // 极慢的明暗交替
-      const tint = tintChoices[Math.floor(rand() * tintChoices.length)];
+      speeds[i] = 0.18 + rand() * 0.7; // 极慢的明暗交替
+      const tint = pickStarTint(rand);
       tints[i * 3] = tint[0];
       tints[i * 3 + 1] = tint[1];
       tints[i * 3 + 2] = tint[2];
@@ -251,6 +268,78 @@ function BackgroundStars({ count = 3200 }: { count?: number }) {
   );
 }
 
+/* ------------------------- 金色五角星层(参考图的灵魂:散落的暖金小星星) ------------------------- */
+
+const GOLD_FRAG = /* glsl */ `
+  uniform float uTime;
+  uniform sampler2D uMap;
+  varying float vPhase;
+  varying float vSpeed;
+  varying vec3 vTint;
+  void main() {
+    vec4 tex = texture2D(uMap, gl_PointCoord);
+    float tw = 0.55 + 0.45 * sin(uTime * vSpeed + vPhase);
+    gl_FragColor = vec4(vTint, tex.a * (0.5 + 0.5 * tw));
+  }
+`;
+
+function GoldStars({ star, count = 620 }: { star: THREE.Texture; count?: number }) {
+  const mat = useRef<THREE.ShaderMaterial>(null);
+  const uniforms = useMemo(() => ({ uTime: { value: 0 }, uMap: { value: star } }), [star]);
+  const { positions, sizes, phases, speeds, tints } = useMemo(() => {
+    const rand = seededRandom(770315);
+    const positions = new Float32Array(count * 3);
+    const sizes = new Float32Array(count);
+    const phases = new Float32Array(count);
+    const speeds = new Float32Array(count);
+    const tints = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      const u = rand() * 2 - 1;
+      const t = rand() * Math.PI * 2;
+      const r = 300 + rand() * 240;
+      const s = Math.sqrt(1 - u * u);
+      positions[i * 3] = s * Math.cos(t) * r;
+      positions[i * 3 + 1] = u * r;
+      positions[i * 3 + 2] = s * Math.sin(t) * r;
+      sizes[i] = 8 + rand() * 16; // 比碎星大,五角星造型清晰、大小错落
+      phases[i] = rand() * Math.PI * 2;
+      speeds[i] = 0.2 + rand() * 0.6;
+      // 实色金:橙金 / 暖金 / 杏金,饱和不发白
+      const g = rand();
+      const tint = g < 0.55 ? [1.0, 0.74, 0.26] : g < 0.85 ? [1.0, 0.83, 0.42] : [1.0, 0.66, 0.34];
+      tints[i * 3] = tint[0];
+      tints[i * 3 + 1] = tint[1];
+      tints[i * 3 + 2] = tint[2];
+    }
+    return { positions, sizes, phases, speeds, tints };
+  }, [count]);
+
+  useFrame((state) => {
+    if (mat.current) mat.current.uniforms.uTime.value = state.clock.elapsedTime;
+  });
+
+  return (
+    <points raycast={() => null} renderOrder={2}>
+      <bufferGeometry>
+        <bufferAttribute attach="attributes-position" args={[positions, 3]} />
+        <bufferAttribute attach="attributes-aSize" args={[sizes, 1]} />
+        <bufferAttribute attach="attributes-aPhase" args={[phases, 1]} />
+        <bufferAttribute attach="attributes-aSpeed" args={[speeds, 1]} />
+        <bufferAttribute attach="attributes-aTint" args={[tints, 3]} />
+      </bufferGeometry>
+      {/* 正常混合:在亮蓝天空上画出实色金星(叠加混合会被冲淡发白) */}
+      <shaderMaterial
+        ref={mat}
+        uniforms={uniforms}
+        vertexShader={STARS_VERT}
+        fragmentShader={GOLD_FRAG}
+        transparent
+        depthWrite={false}
+      />
+    </points>
+  );
+}
+
 /* ---------------------------------- 漂浮微光尘埃 ---------------------------------- */
 
 function Dust({ halo }: { halo: THREE.Texture }) {
@@ -278,7 +367,7 @@ function Dust({ halo }: { halo: THREE.Texture }) {
       <bufferGeometry>
         <bufferAttribute attach="attributes-position" args={[positions, 3]} />
       </bufferGeometry>
-      <pointsMaterial map={halo} size={2.4} sizeAttenuation transparent opacity={0.32} color="#9fb4ff" depthWrite={false} blending={THREE.AdditiveBlending} />
+      <pointsMaterial map={halo} size={2.6} sizeAttenuation transparent opacity={0.42} color="#ffe2a6" depthWrite={false} blending={THREE.AdditiveBlending} />
     </points>
   );
 }
@@ -350,11 +439,13 @@ interface StarSpec {
 function JournalStar({
   spec,
   halo,
+  star,
   onSelect,
   onHover,
 }: {
   spec: StarSpec;
   halo: THREE.Texture;
+  star: THREE.Texture;
   onSelect: (entry: JournalPublicEntry, x: number, y: number) => void;
   onHover: (info: HoverInfo | null) => void;
 }) {
@@ -372,9 +463,13 @@ function JournalStar({
       const next = cur + (target - cur) * 0.12; // 平滑过渡
       sprite.current.scale.setScalar(next);
       const m = sprite.current.material as THREE.SpriteMaterial;
-      m.opacity = (hovered.current ? 1 : 0.82) * (0.8 + 0.2 * Math.sin(t * spec.speed + spec.phase));
+      m.opacity = (hovered.current ? 1 : 0.9) * (0.85 + 0.15 * Math.sin(t * spec.speed + spec.phase));
     }
-    if (core.current) core.current.scale.setScalar(spec.baseScale * 0.34 * breath);
+    // 五角星亮核:跟随呼吸 + 极缓慢自转,hover 时一起放大
+    if (core.current) {
+      core.current.scale.setScalar(spec.baseScale * 0.62 * breath * (hovered.current ? 1.4 : 1));
+      core.current.material.rotation = Math.sin(t * 0.15 + spec.phase) * 0.25;
+    }
   });
 
   function over(e: ThreeEvent<PointerEvent>) {
@@ -400,9 +495,9 @@ function JournalStar({
       <sprite ref={sprite} onPointerOver={over} onPointerOut={out} onPointerMove={over} onClick={click}>
         <spriteMaterial map={halo} color={spec.color} transparent depthWrite={false} blending={THREE.AdditiveBlending} />
       </sprite>
-      {/* 亮核 */}
-      <sprite ref={core} raycast={() => null}>
-        <spriteMaterial map={halo} color="#ffffff" transparent depthWrite={false} blending={THREE.AdditiveBlending} />
+      {/* 五角星亮核:实色金星画在发光晕之上(参考图里发光的金色主星) */}
+      <sprite ref={core} raycast={() => null} renderOrder={3}>
+        <spriteMaterial map={star} color={spec.color} transparent depthWrite={false} />
       </sprite>
     </group>
   );
@@ -420,11 +515,13 @@ export function StarrySky({
   onHover: (info: HoverInfo | null) => void;
 }) {
   const halo = useMemo(() => makeHaloTexture(), []);
+  const star = useMemo(() => makeStarTexture(), []);
   const trail = useMemo(() => makeTrailTexture(), []);
   useEffect(() => () => {
     halo.dispose();
+    star.dispose();
     trail.dispose();
-  }, [halo, trail]);
+  }, [halo, star, trail]);
 
   // 主星布点:黄金角螺旋铺在地平线以上的球带,错落有致;同一条目位置稳定
   const specs = useMemo<StarSpec[]>(() => {
@@ -460,10 +557,11 @@ export function StarrySky({
       <PanoramaControls />
       <SkyDome />
       <BackgroundStars />
+      <GoldStars star={star} />
       <Dust halo={halo} />
       <ShootingStars trail={trail} />
       {specs.map((s) => (
-        <JournalStar key={s.entry.id} spec={s} halo={halo} onSelect={onSelect} onHover={onHover} />
+        <JournalStar key={s.entry.id} spec={s} halo={halo} star={star} onSelect={onSelect} onHover={onHover} />
       ))}
     </>
   );

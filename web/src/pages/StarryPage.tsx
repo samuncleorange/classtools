@@ -17,7 +17,7 @@ function LoadingVeil({ done }: { done: boolean }) {
     [],
   );
   return (
-    <div className={`absolute inset-0 z-30 bg-[#070b1a] transition-opacity duration-1000 ${done ? 'pointer-events-none opacity-0' : 'opacity-100'}`}>
+    <div className={`absolute inset-0 z-30 bg-[#0b1b5a] transition-opacity duration-1000 ${done ? 'pointer-events-none opacity-0' : 'opacity-100'}`}>
       {dots.map((d, i) => (
         <span key={i} className="starry-loading-dot absolute" style={{ left: d.left, top: d.top, width: d.size, height: d.size, animationDelay: d.delay }} />
       ))}
@@ -72,14 +72,14 @@ export function StarryPage() {
 
   if (isError) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-[#070b1a]">
+      <div className="fixed inset-0 flex items-center justify-center bg-[#0b1b5a]">
         <p className="text-sm tracking-widest text-indigo-200/60">链接无效或已失效</p>
       </div>
     );
   }
 
   return (
-    <div className="fixed inset-0 overflow-hidden bg-[#070b1a]">
+    <div className="fixed inset-0 overflow-hidden bg-[#0b1b5a]">
       {/* 星空画布:浮层打开时轻微虚化下沉 */}
       <div className={`absolute inset-0 transition-all duration-500 ${selected ? 'scale-[1.02] opacity-70 blur-[2px]' : ''}`}>
         {data && (

@@ -16,6 +16,44 @@ export function makeHaloTexture(size = 128): THREE.Texture {
   return new THREE.CanvasTexture(c);
 }
 
+/** 五角星贴图:实心五角星 + 柔和外发光,纯白(着色交给材质 tint,可加色) */
+export function makeStarTexture(size = 128, spikes = 5): THREE.Texture {
+  const c = document.createElement('canvas');
+  c.width = c.height = size;
+  const g = c.getContext('2d')!;
+  const cx = size / 2;
+  const cy = size / 2;
+  // 星形背后的柔和光晕
+  const glow = g.createRadialGradient(cx, cy, 0, cx, cy, size / 2);
+  glow.addColorStop(0, 'rgba(255,255,255,0.6)');
+  glow.addColorStop(0.36, 'rgba(255,255,255,0.16)');
+  glow.addColorStop(1, 'rgba(255,255,255,0)');
+  g.fillStyle = glow;
+  g.fillRect(0, 0, size, size);
+  // 五角星轮廓
+  const outer = size * 0.34;
+  const inner = outer * 0.44;
+  g.beginPath();
+  for (let i = 0; i < spikes * 2; i++) {
+    const r = i % 2 === 0 ? outer : inner;
+    const a = (Math.PI / spikes) * i - Math.PI / 2;
+    const x = cx + Math.cos(a) * r;
+    const y = cy + Math.sin(a) * r;
+    if (i === 0) g.moveTo(x, y);
+    else g.lineTo(x, y);
+  }
+  g.closePath();
+  const core = g.createRadialGradient(cx, cy, 0, cx, cy, outer);
+  core.addColorStop(0, 'rgba(255,255,255,1)');
+  core.addColorStop(0.55, 'rgba(255,255,255,0.97)');
+  core.addColorStop(1, 'rgba(255,255,255,0.82)');
+  g.fillStyle = core;
+  g.shadowColor = 'rgba(255,255,255,0.9)';
+  g.shadowBlur = size * 0.05;
+  g.fill();
+  return new THREE.CanvasTexture(c);
+}
+
 /** 流星尾迹贴图:头部亮、尾部渐隐的水平渐变 */
 export function makeTrailTexture(): THREE.Texture {
   const c = document.createElement('canvas');
