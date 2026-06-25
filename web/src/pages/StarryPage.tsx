@@ -51,6 +51,22 @@ export function StarryPage() {
     return () => clearTimeout(t);
   }, [data]);
 
+  // 打开页面即在后台预加载所有手帐图片,点击星星时直接命中缓存,不再现拉网络
+  useEffect(() => {
+    if (!data) return;
+    const imgs = data.entries
+      .map((e) => e.image_path)
+      .filter((p): p is string => !!p)
+      .map((src) => {
+        const img = new Image();
+        img.src = src;
+        return img;
+      });
+    return () => {
+      imgs.forEach((img) => { img.src = ''; }); // 卸载时中断未完成的预加载
+    };
+  }, [data]);
+
   function toggleAudio() {
     if (!pad.current) pad.current = new AmbientPad();
     if (playing) {
