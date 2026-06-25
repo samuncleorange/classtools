@@ -76,10 +76,14 @@ export function StarDetailOverlay({
         >✕</button>
 
         <div className="max-h-[82vh] overflow-y-auto">
-          {/* 图片:点击可全屏放大 */}
+          {/* 图片:完整显示(object-contain 自适应高/宽图),深色衬底让留白自然;点击可全屏放大 */}
           {entry.image_path && (
-            <button onClick={() => setZoom(true)} className="block w-full cursor-zoom-in" aria-label="放大查看图片">
-              <img src={entry.image_path} alt={entry.title} className="max-h-[44vh] w-full object-cover" draggable={false} />
+            <button
+              onClick={() => setZoom(true)}
+              className="flex w-full cursor-zoom-in items-center justify-center bg-[#070d24]"
+              aria-label="放大查看图片"
+            >
+              <img src={entry.image_path} alt={entry.title} className="mx-auto max-h-[48vh] w-auto max-w-full object-contain" draggable={false} />
             </button>
           )}
 
