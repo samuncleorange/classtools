@@ -16,6 +16,20 @@ export function StarDetailOverlay({
 }) {
   const [closing, setClosing] = useState(false);
   const [zoom, setZoom] = useState(false); // 图片全屏查看
+  const [natural, setNatural] = useState<{ w: number; h: number } | null>(null); // 图片真实尺寸
+
+  // 卡片宽度随图片比例自适应:以图片最大显示高度时的宽度为基准,夹在合理区间。
+  // 竖图 → 窄卡,横图 → 宽卡,几乎不留深色边。图片已预加载,尺寸通常即时可得。
+  const cardWidth = useMemo<number | undefined>(() => {
+    if (!entry.image_path || !natural) return undefined;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const maxH = vh * 0.66; // 图片最大显示高度
+    const maxW = Math.min(vw * 0.92, 880);
+    const minW = Math.min(vw * 0.86, 300); // 太窄则文字难读,设下限
+    const ar = natural.w / natural.h;
+    return Math.round(Math.min(Math.max(maxH * ar, minW), maxW));
+  }, [entry.image_path, natural]);
 
   function close() {
     if (closing) return;
@@ -59,9 +73,9 @@ export function StarDetailOverlay({
       <div className="absolute inset-0 bg-[#05070f]/55 backdrop-blur-[5px]" />
 
       <div
-        style={cardStyle}
+        style={{ ...cardStyle, ...(cardWidth ? { width: cardWidth } : {}) }}
         onClick={(e) => e.stopPropagation()}
-        className={`relative w-full max-w-2xl overflow-hidden rounded-[2rem] bg-white/[0.07] ring-1 ring-white/15 backdrop-blur-2xl shadow-[0_0_60px_rgba(140,170,255,0.18),0_24px_70px_rgba(0,0,0,0.5)] ${closing ? 'starry-card-out' : 'starry-card-in'}`}
+        className={`relative max-w-[92vw] overflow-hidden rounded-[2rem] bg-white/[0.07] ring-1 ring-white/15 backdrop-blur-2xl shadow-[0_0_60px_rgba(140,170,255,0.18),0_24px_70px_rgba(0,0,0,0.5)] ${cardWidth ? '' : 'w-[min(92vw,42rem)]'} ${closing ? 'starry-card-out' : 'starry-card-in'}`}
       >
         {/* 微光颗粒 */}
         {motes.map((m, i) => (
@@ -76,14 +90,20 @@ export function StarDetailOverlay({
         >✕</button>
 
         <div className="max-h-[82vh] overflow-y-auto">
-          {/* 图片:完整显示(object-contain 自适应高/宽图),深色衬底让留白自然;点击可全屏放大 */}
+          {/* 图片:卡片宽度已随图片比例自适应,图片铺满卡宽完整显示;点击可全屏放大 */}
           {entry.image_path && (
             <button
               onClick={() => setZoom(true)}
               className="flex w-full cursor-zoom-in items-center justify-center bg-[#070d24]"
               aria-label="放大查看图片"
             >
-              <img src={entry.image_path} alt={entry.title} className="mx-auto max-h-[48vh] w-auto max-w-full object-contain" draggable={false} />
+              <img
+                src={entry.image_path}
+                alt={entry.title}
+                onLoad={(e) => setNatural({ w: e.currentTarget.naturalWidth, h: e.currentTarget.naturalHeight })}
+                className="block max-h-[66vh] w-full object-contain"
+                draggable={false}
+              />
             </button>
           )}
 
